@@ -1,0 +1,255 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { User, Mail, Lock, Loader2 } from "lucide-react";
+
+import { authClient } from "~/lib/auth-client";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    CardFooter,
+} from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import {
+    Field,
+    FieldLabel,
+    FieldError,
+    FieldGroup,
+} from "~/components/ui/field";
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from "~/components/ui/input-group";
+
+const signUpSchema = z
+    .object({
+        name: z.string().min(2, "Name must be at least 2 characters"),
+        email: z.string().email("Please enter a valid email address"),
+        password: z.string().min(8, "Password must be at least 8 characters"),
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    });
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
+
+export default function SignUpPage() {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<SignUpFormData>({
+        resolver: zodResolver(signUpSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+        },
+    });
+
+    const onSubmit = async (data: SignUpFormData) => {
+        setIsLoading(true);
+
+        try {
+            const response = await authClient.signUp.email({
+                name: data.name,
+                email: data.email,
+                password: data.password,
+            });
+
+            if (response.error) {
+                toast.error(
+                    response.error.message ?? "Failed to create account"
+                );
+                return;
+            }
+
+            toast.success("Account created successfully!");
+            router.push("/dashboard");
+        } catch {
+            toast.error("Something went wrong. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+            <Card className="w-full max-w-md border-slate-700/50 bg-slate-900/80 backdrop-blur-sm">
+                <CardHeader className="space-y-1 text-center">
+                    <CardTitle className="text-2xl font-bold tracking-tight text-white">
+                        Create an account
+                    </CardTitle>
+                    <CardDescription className="text-slate-400">
+                        Enter your details below to create your account
+                    </CardDescription>
+                </CardHeader>
+
+                <CardContent>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <FieldGroup>
+                            <Field data-invalid={!!errors.name}>
+                                <FieldLabel
+                                    htmlFor="name"
+                                    className="text-slate-200"
+                                >
+                                    Full Name
+                                </FieldLabel>
+                                <InputGroup className="border-slate-700 bg-slate-800/50">
+                                    <InputGroupAddon align="inline-start">
+                                        <User className="size-4 text-slate-400" />
+                                    </InputGroupAddon>
+                                    <InputGroupInput
+                                        id="name"
+                                        type="text"
+                                        placeholder="John Doe"
+                                        autoComplete="name"
+                                        disabled={isLoading}
+                                        aria-invalid={!!errors.name}
+                                        className="text-white placeholder:text-slate-500"
+                                        {...register("name")}
+                                    />
+                                </InputGroup>
+                                {errors.name && (
+                                    <FieldError>
+                                        {errors.name.message}
+                                    </FieldError>
+                                )}
+                            </Field>
+
+                            <Field data-invalid={!!errors.email}>
+                                <FieldLabel
+                                    htmlFor="email"
+                                    className="text-slate-200"
+                                >
+                                    Email
+                                </FieldLabel>
+                                <InputGroup className="border-slate-700 bg-slate-800/50">
+                                    <InputGroupAddon align="inline-start">
+                                        <Mail className="size-4 text-slate-400" />
+                                    </InputGroupAddon>
+                                    <InputGroupInput
+                                        id="email"
+                                        type="email"
+                                        placeholder="you@example.com"
+                                        autoComplete="email"
+                                        disabled={isLoading}
+                                        aria-invalid={!!errors.email}
+                                        className="text-white placeholder:text-slate-500"
+                                        {...register("email")}
+                                    />
+                                </InputGroup>
+                                {errors.email && (
+                                    <FieldError>
+                                        {errors.email.message}
+                                    </FieldError>
+                                )}
+                            </Field>
+
+                            <Field data-invalid={!!errors.password}>
+                                <FieldLabel
+                                    htmlFor="password"
+                                    className="text-slate-200"
+                                >
+                                    Password
+                                </FieldLabel>
+                                <InputGroup className="border-slate-700 bg-slate-800/50">
+                                    <InputGroupAddon align="inline-start">
+                                        <Lock className="size-4 text-slate-400" />
+                                    </InputGroupAddon>
+                                    <InputGroupInput
+                                        id="password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        autoComplete="new-password"
+                                        disabled={isLoading}
+                                        aria-invalid={!!errors.password}
+                                        className="text-white placeholder:text-slate-500"
+                                        {...register("password")}
+                                    />
+                                </InputGroup>
+                                {errors.password && (
+                                    <FieldError>
+                                        {errors.password.message}
+                                    </FieldError>
+                                )}
+                            </Field>
+
+                            <Field data-invalid={!!errors.confirmPassword}>
+                                <FieldLabel
+                                    htmlFor="confirmPassword"
+                                    className="text-slate-200"
+                                >
+                                    Confirm Password
+                                </FieldLabel>
+                                <InputGroup className="border-slate-700 bg-slate-800/50">
+                                    <InputGroupAddon align="inline-start">
+                                        <Lock className="size-4 text-slate-400" />
+                                    </InputGroupAddon>
+                                    <InputGroupInput
+                                        id="confirmPassword"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        autoComplete="new-password"
+                                        disabled={isLoading}
+                                        aria-invalid={!!errors.confirmPassword}
+                                        className="text-white placeholder:text-slate-500"
+                                        {...register("confirmPassword")}
+                                    />
+                                </InputGroup>
+                                {errors.confirmPassword && (
+                                    <FieldError>
+                                        {errors.confirmPassword.message}
+                                    </FieldError>
+                                )}
+                            </Field>
+
+                            <Button
+                                type="submit"
+                                disabled={isLoading}
+                                className="mt-2 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                        Creating account...
+                                    </>
+                                ) : (
+                                    "Create account"
+                                )}
+                            </Button>
+                        </FieldGroup>
+                    </form>
+                </CardContent>
+
+                <CardFooter className="justify-center bg-slate-800/50">
+                    <p className="text-sm text-slate-400">
+                        Already have an account?{" "}
+                        <Link
+                            href="/sign-in"
+                            className="font-medium text-blue-400 transition-colors hover:text-blue-300"
+                        >
+                            Sign in
+                        </Link>
+                    </p>
+                </CardFooter>
+            </Card>
+        </div>
+    );
+}
