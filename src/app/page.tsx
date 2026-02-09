@@ -108,9 +108,10 @@ const LandingPage = () => {
                                 <div className="h-2 w-full rounded bg-slate-800" />
                                 <div className="mt-6 rounded-lg border border-indigo-500/30 bg-indigo-500/5 p-3">
                                     <p className="text-[10px] leading-relaxed text-slate-300 italic">
-                                        &quot;AI: The second law of thermodynamics
-                                        implies that the entropy of an isolated
-                                        system never decreases...&quot;
+                                        &quot;AI: The second law of
+                                        thermodynamics implies that the entropy
+                                        of an isolated system never
+                                        decreases...&quot;
                                     </p>
                                 </div>
                             </div>
