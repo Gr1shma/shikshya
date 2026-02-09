@@ -1,37 +1,23 @@
 import { relations } from "drizzle-orm";
 import {
     boolean,
-    index,
+    pgEnum,
     pgTable,
-    pgTableCreator,
+    primaryKey,
     text,
     timestamp,
+    uuid,
 } from "drizzle-orm/pg-core";
 
-export const createTable = pgTableCreator((name) => `pg-drizzle_${name}`);
+export const userRoleEnum = pgEnum("user_role", ["teacher", "student"]);
 
-export const posts = createTable(
-    "post",
-    (d) => ({
-        id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-        name: d.varchar({ length: 256 }),
-        createdById: d
-            .varchar({ length: 255 })
-            .notNull()
-            .references(() => user.id),
-        createdAt: d
-            .timestamp({ withTimezone: true })
-            .$defaultFn(() => new Date())
-            .notNull(),
-        updatedAt: d
-            .timestamp({ withTimezone: true })
-            .$onUpdate(() => new Date()),
-    }),
-    (t) => [
-        index("created_by_idx").on(t.createdById),
-        index("name_idx").on(t.name),
-    ]
-);
+export const messageRoleEnum = pgEnum("message_role", [
+    "user",
+    "system",
+    "assistant",
+    "data",
+    "tool",
+]);
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -41,11 +27,12 @@ export const user = pgTable("user", {
         .$defaultFn(() => false)
         .notNull(),
     image: text("image"),
+    role: userRoleEnum("role").notNull().default("student"),
     createdAt: timestamp("created_at")
-        .$defaultFn(() => /* @__PURE__ */ new Date())
+        .$defaultFn(() => new Date())
         .notNull(),
     updatedAt: timestamp("updated_at")
-        .$defaultFn(() => /* @__PURE__ */ new Date())
+        .$defaultFn(() => new Date())
         .notNull(),
 });
 
@@ -85,17 +72,73 @@ export const verification = pgTable("verification", {
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
-    createdAt: timestamp("created_at").$defaultFn(
-        () => /* @__PURE__ */ new Date()
-    ),
-    updatedAt: timestamp("updated_at").$defaultFn(
-        () => /* @__PURE__ */ new Date()
-    ),
+    createdAt: timestamp("created_at").$defaultFn(() => new Date()),
+    updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
+});
+
+export const course = pgTable("course", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    description: text("description"),
+    joinCode: text("join_code").notNull().unique(),
+    teacherId: text("teacher_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at")
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+export const enrollment = pgTable(
+    "enrollment",
+    {
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        courseId: uuid("course_id")
+            .notNull()
+            .references(() => course.id, { onDelete: "cascade" }),
+        joinedAt: timestamp("joined_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [primaryKey({ columns: [table.userId, table.courseId] })]
+);
+
+export const note = pgTable("note", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    fileUrl: text("file_url").notNull(),
+    textContent: text("text_content"),
+    courseId: uuid("course_id")
+        .notNull()
+        .references(() => course.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at")
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+export const message = pgTable("message", {
+    id: text("id").primaryKey(),
+    role: messageRoleEnum("role").notNull(),
+    content: text("content").notNull(),
+    noteId: uuid("note_id")
+        .notNull()
+        .references(() => note.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at")
+        .$defaultFn(() => new Date())
+        .notNull(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({
-    account: many(account),
-    session: many(session),
+    accounts: many(account),
+    sessions: many(session),
+    coursesCreated: many(course),
+    enrollments: many(enrollment),
+    messages: many(message),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
@@ -105,3 +148,42 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const sessionRelations = relations(session, ({ one }) => ({
     user: one(user, { fields: [session.userId], references: [user.id] }),
 }));
+
+export const courseRelations = relations(course, ({ one, many }) => ({
+    teacher: one(user, { fields: [course.teacherId], references: [user.id] }),
+    enrollments: many(enrollment),
+    notes: many(note),
+}));
+
+export const enrollmentRelations = relations(enrollment, ({ one }) => ({
+    user: one(user, { fields: [enrollment.userId], references: [user.id] }),
+    course: one(course, {
+        fields: [enrollment.courseId],
+        references: [course.id],
+    }),
+}));
+
+export const noteRelations = relations(note, ({ one, many }) => ({
+    course: one(course, { fields: [note.courseId], references: [course.id] }),
+    messages: many(message),
+}));
+
+export const messageRelations = relations(message, ({ one }) => ({
+    note: one(note, { fields: [message.noteId], references: [note.id] }),
+    user: one(user, { fields: [message.userId], references: [user.id] }),
+}));
+
+export type User = typeof user.$inferSelect;
+export type NewUser = typeof user.$inferInsert;
+
+export type Course = typeof course.$inferSelect;
+export type NewCourse = typeof course.$inferInsert;
+
+export type Enrollment = typeof enrollment.$inferSelect;
+export type NewEnrollment = typeof enrollment.$inferInsert;
+
+export type Note = typeof note.$inferSelect;
+export type NewNote = typeof note.$inferInsert;
+
+export type Message = typeof message.$inferSelect;
+export type NewMessage = typeof message.$inferInsert;
