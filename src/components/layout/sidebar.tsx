@@ -13,7 +13,6 @@ import {
     Mail,
     ChevronRight,
 } from "lucide-react";
-import Image from "next/image";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
