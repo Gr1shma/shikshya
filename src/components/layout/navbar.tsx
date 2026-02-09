@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, LibraryBig, BookOpen, Menu, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import ProfileSidebar from "./sidebar";
-import { useSession } from "~/lib/auth-client";
-import { UserAvatar } from "../user-avatar";
 
 const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -21,31 +20,12 @@ export default function Navbar() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const pathname = usePathname();
 
-    const { data: session } = useSession();
-    const user = session?.user as
-        | {
-              name?: string | null;
-              email?: string | null;
-              image?: string | null;
-              role?: string;
-          }
-        | undefined;
-
-    const userData = user
-        ? {
-              name: user.name ?? "User",
-              email: user.email ?? "",
-              role: user.role ?? "Student",
-              image:
-                  user.image ??
-                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`,
-          }
-        : {
-              name: "Guest",
-              email: "",
-              role: "Guest",
-              image: "",
-          };
+    const userData = {
+        name: "Aarav Sharma",
+        email: "aarav.shiksha@edu.com",
+        role: "Student",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav",
+    };
 
     return (
         <>
@@ -101,12 +81,19 @@ export default function Navbar() {
 
                         {/* Profile & Mobile Toggle */}
                         <div className="flex items-center gap-2">
-                            <UserAvatar
-                                name={userData.name}
-                                imageUrl={userData.image}
+                            <button
                                 onClick={() => setIsProfileOpen(true)}
-                                className="h-10 w-10 border border-white/10 transition-all hover:border-indigo-500/50"
-                            />
+                                className="group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-slate-900 transition-all hover:border-indigo-500/50"
+                            >
+                                <Image
+                                    src={userData.image}
+                                    alt="Profile"
+                                    width={40}
+                                    height={40}
+                                    className="h-full w-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100" />
+                            </button>
 
                             <button
                                 onClick={() => setIsOpen(!isOpen)}

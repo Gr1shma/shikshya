@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -73,6 +74,8 @@ export default function ProfileSidebar({
                                     <Image
                                         src={user.image}
                                         alt="Avatar"
+                                        width={80}
+                                        height={80}
                                         className="h-full w-full rounded-full bg-slate-800"
                                     />
                                 </div>

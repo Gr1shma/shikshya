@@ -25,7 +25,6 @@ export function TestRoutersClient() {
     const [testCourseId, setTestCourseId] = useState<string | null>(null);
     const [testNoteId, setTestNoteId] = useState<string | null>(null);
     const [testMessageId, setTestMessageId] = useState<string | null>(null);
-    const [testAccountId, setTestAccountId] = useState<string | null>(null);
     const sessionUserId = session?.user?.id ?? null;
     const canUse = Boolean(sessionUserId);
     const effectiveUserId = testUserId ?? sessionUserId;
@@ -37,14 +36,6 @@ export function TestRoutersClient() {
     const userList = api.user.list.useQuery(undefined, { enabled: false });
     const userById = api.user.getById.useQuery(
         { id: effectiveUserId ?? "" },
-        { enabled: false }
-    );
-
-    const accountList = api.account.list.useQuery(undefined, {
-        enabled: false,
-    });
-    const accountById = api.account.getById.useQuery(
-        { id: testAccountId ?? "" },
         { enabled: false }
     );
 
@@ -81,10 +72,6 @@ export function TestRoutersClient() {
 
     const userUpdate = api.user.update.useMutation();
     const userDelete = api.user.delete.useMutation();
-
-    const accountCreate = api.account.create.useMutation();
-    const accountUpdate = api.account.update.useMutation();
-    const accountDelete = api.account.delete.useMutation();
 
     const courseCreate = api.course.create.useMutation();
     const courseUpdate = api.course.update.useMutation();
@@ -309,43 +296,6 @@ export function TestRoutersClient() {
         await safeRefetch("message.delete", () =>
             messageDelete.mutateAsync({ id: testMessageId })
         );
-        setTestMessageId(null);
-    };
-
-    const onCreateAccount = async () => {
-        if (!effectiveUserId) return;
-        const id = makeId();
-        const created = await safeRefetch("account.create", () =>
-            accountCreate.mutateAsync({
-                id,
-                accountId: makeId(),
-                providerId: "test",
-                userId: effectiveUserId,
-            })
-        );
-        if (created && typeof created === "object" && "id" in created) {
-            setTestAccountId(String(created.id));
-        } else {
-            setTestAccountId(id);
-        }
-    };
-
-    const onUpdateAccount = async () => {
-        if (!testAccountId) return;
-        await safeRefetch("account.update", () =>
-            accountUpdate.mutateAsync({
-                id: testAccountId,
-                scope: "updated",
-            })
-        );
-    };
-
-    const onDeleteAccount = async () => {
-        if (!testAccountId) return;
-        await safeRefetch("account.delete", () =>
-            accountDelete.mutateAsync({ id: testAccountId })
-        );
-        setTestAccountId(null);
     };
 
     if (isPending) {
@@ -579,59 +529,6 @@ export function TestRoutersClient() {
                 <p className="text-muted-foreground text-xs">
                     testMessageId: {testMessageId ?? "(none)"}
                 </p>
-            </div>
-
-            <div className="space-y-2">
-                <h2 className="text-lg font-semibold">Session</h2>
-                <div className="flex flex-wrap gap-2"></div>
-            </div>
-
-            <div className="space-y-2">
-                <h2 className="text-lg font-semibold">Account</h2>
-                <div className="flex flex-wrap gap-2">
-                    <Button
-                        onClick={() =>
-                            safeRefetch("account.list", () =>
-                                accountList.refetch()
-                            )
-                        }
-                    >
-                        account.list
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            testAccountId
-                                ? safeRefetch("account.getById", () =>
-                                      accountById.refetch()
-                                  )
-                                : logLine(
-                                      "account.getById: missing test account"
-                                  )
-                        }
-                    >
-                        account.getById
-                    </Button>
-                    <Button
-                        onClick={onCreateAccount}
-                        disabled={!effectiveUserId}
-                    >
-                        account.create
-                    </Button>
-                    <Button onClick={onUpdateAccount} disabled={!testAccountId}>
-                        account.update
-                    </Button>
-                    <Button onClick={onDeleteAccount} disabled={!testAccountId}>
-                        account.delete
-                    </Button>
-                </div>
-                <p className="text-muted-foreground text-xs">
-                    testAccountId: {testAccountId ?? "(none)"}
-                </p>
-            </div>
-
-            <div className="space-y-2">
-                <h2 className="text-lg font-semibold">Verification</h2>
-                <div className="flex flex-wrap gap-2"></div>
             </div>
 
             <div className="space-y-2">

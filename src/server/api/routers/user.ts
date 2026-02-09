@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { user } from "~/server/db/schema";
 
-const userRoleSchema = z.enum(["teacher", "student"]);
+const userRoleSchema = z.enum(["admin", "teacher", "student"]);
 
 export const userRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
