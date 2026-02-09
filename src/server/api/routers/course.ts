@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { course } from "~/server/db/schema";
+import { course, user } from "~/server/db/schema";
 
 export const courseRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
@@ -32,6 +33,18 @@ export const courseRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            if (input.teacherId !== ctx.session.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const dbUser = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (dbUser?.role !== "teacher") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [created] = await ctx.db
                 .insert(course)
                 .values({

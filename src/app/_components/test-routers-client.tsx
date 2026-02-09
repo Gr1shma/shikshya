@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "~/components/ui/button";
-import { useSession } from "~/lib/auth-client";
+import { signOut, signUp, useSession } from "~/lib/auth-client";
 import { api } from "~/trpc/react";
 
 type LogEntry = {
@@ -19,17 +19,13 @@ const makeId = () => {
 };
 
 export function TestRoutersClient() {
-    const { data: session, isPending, error } = useSession();
+    const { data: session, isPending, error, refetch } = useSession();
     const [log, setLog] = useState<LogEntry[]>([]);
     const [testUserId, setTestUserId] = useState<string | null>(null);
     const [testCourseId, setTestCourseId] = useState<string | null>(null);
     const [testNoteId, setTestNoteId] = useState<string | null>(null);
     const [testMessageId, setTestMessageId] = useState<string | null>(null);
     const [testAccountId, setTestAccountId] = useState<string | null>(null);
-    const [testSessionId, setTestSessionId] = useState<string | null>(null);
-    const [testVerificationId, setTestVerificationId] = useState<string | null>(
-        null
-    );
     const sessionUserId = session?.user?.id ?? null;
     const canUse = Boolean(sessionUserId);
     const effectiveUserId = testUserId ?? sessionUserId;
@@ -40,7 +36,7 @@ export function TestRoutersClient() {
 
     const userList = api.user.list.useQuery(undefined, { enabled: false });
     const userById = api.user.getById.useQuery(
-        { id: testUserId ?? "" },
+        { id: effectiveUserId ?? "" },
         { enabled: false }
     );
 
@@ -49,22 +45,6 @@ export function TestRoutersClient() {
     });
     const accountById = api.account.getById.useQuery(
         { id: testAccountId ?? "" },
-        { enabled: false }
-    );
-
-    const sessionList = api.session.list.useQuery(undefined, {
-        enabled: false,
-    });
-    const sessionById = api.session.getById.useQuery(
-        { id: testSessionId ?? "" },
-        { enabled: false }
-    );
-
-    const verificationList = api.verification.list.useQuery(undefined, {
-        enabled: false,
-    });
-    const verificationById = api.verification.getById.useQuery(
-        { id: testVerificationId ?? "" },
         { enabled: false }
     );
 
@@ -99,21 +79,12 @@ export function TestRoutersClient() {
         { enabled: false }
     );
 
-    const userCreate = api.user.create.useMutation();
     const userUpdate = api.user.update.useMutation();
     const userDelete = api.user.delete.useMutation();
 
     const accountCreate = api.account.create.useMutation();
     const accountUpdate = api.account.update.useMutation();
     const accountDelete = api.account.delete.useMutation();
-
-    const sessionCreate = api.session.create.useMutation();
-    const sessionUpdate = api.session.update.useMutation();
-    const sessionDelete = api.session.delete.useMutation();
-
-    const verificationCreate = api.verification.create.useMutation();
-    const verificationUpdate = api.verification.update.useMutation();
-    const verificationDelete = api.verification.delete.useMutation();
 
     const courseCreate = api.course.create.useMutation();
     const courseUpdate = api.course.update.useMutation();
@@ -135,6 +106,7 @@ export function TestRoutersClient() {
         try {
             const data = await fn();
             logLine(`${label}: ok`);
+            logLine(`${label}: data ${JSON.stringify(data)}`);
             return data;
         } catch (err) {
             logLine(`${label}: error ${String(err)}`);
@@ -142,29 +114,52 @@ export function TestRoutersClient() {
         }
     };
 
+    // Here we are first creating a new user throught sign-up process and the updaing the role
     const onCreateUser = async () => {
         const id = makeId();
         const email = `test+${id}@example.com`;
-        const created = await safeRefetch("user.create", () =>
-            userCreate.mutateAsync({
-                id,
-                name: "Test User",
-                email,
-                role: "student",
-            })
-        );
-        if (created && typeof created === "object" && "id" in created) {
-            setTestUserId(String(created.id));
-        } else {
-            setTestUserId(id);
+        const password = `Test!${id}`;
+
+        await safeRefetch("auth.signOut", async () => {
+            await signOut();
+        });
+
+        const result = await signUp.email({
+            email,
+            name: "Test User",
+            password,
+        });
+
+        if ("error" in result && result.error) {
+            logLine(`auth.signUp: error ${result.error.message ?? "unknown"}`);
+            return;
+        }
+
+        logLine("auth.signUp: ok");
+
+        let newUserId: string | null = null;
+        if ("data" in result && result.data?.user?.id) {
+            newUserId = String(result.data.user.id);
+            setTestUserId(newUserId);
+        }
+
+        await safeRefetch("auth.session.refetch", () => refetch());
+
+        if (newUserId) {
+            await safeRefetch("user.update.role", () =>
+                userUpdate.mutateAsync({
+                    id: newUserId,
+                    role: "teacher",
+                })
+            );
         }
     };
 
     const onUpdateUser = async () => {
-        if (!testUserId) return;
+        if (!effectiveUserId) return;
         await safeRefetch("user.update", () =>
             userUpdate.mutateAsync({
-                id: testUserId,
+                id: effectiveUserId,
                 name: "Updated User",
             })
         );
@@ -177,6 +172,12 @@ export function TestRoutersClient() {
         );
         setTestUserId(null);
     };
+
+    useEffect(() => {
+        if (!testUserId && sessionUserId) {
+            setTestUserId(sessionUserId);
+        }
+    }, [sessionUserId, testUserId]);
 
     const onCreateCourse = async () => {
         if (!effectiveUserId) return;
@@ -347,77 +348,6 @@ export function TestRoutersClient() {
         setTestAccountId(null);
     };
 
-    const onCreateSession = async () => {
-        if (!effectiveUserId) return;
-        const id = makeId();
-        const created = await safeRefetch("session.create", () =>
-            sessionCreate.mutateAsync({
-                id,
-                expiresAt: new Date(Date.now() + 1000 * 60 * 60),
-                token: makeId(),
-                userId: effectiveUserId,
-            })
-        );
-        if (created && typeof created === "object" && "id" in created) {
-            setTestSessionId(String(created.id));
-        } else {
-            setTestSessionId(id);
-        }
-    };
-
-    const onUpdateSession = async () => {
-        if (!testSessionId) return;
-        await safeRefetch("session.update", () =>
-            sessionUpdate.mutateAsync({
-                id: testSessionId,
-                token: makeId(),
-            })
-        );
-    };
-
-    const onDeleteSession = async () => {
-        if (!testSessionId) return;
-        await safeRefetch("session.delete", () =>
-            sessionDelete.mutateAsync({ id: testSessionId })
-        );
-        setTestSessionId(null);
-    };
-
-    const onCreateVerification = async () => {
-        const id = makeId();
-        const created = await safeRefetch("verification.create", () =>
-            verificationCreate.mutateAsync({
-                id,
-                identifier: `test-${id}`,
-                value: makeId(),
-                expiresAt: new Date(Date.now() + 1000 * 60 * 10),
-            })
-        );
-        if (created && typeof created === "object" && "id" in created) {
-            setTestVerificationId(String(created.id));
-        } else {
-            setTestVerificationId(id);
-        }
-    };
-
-    const onUpdateVerification = async () => {
-        if (!testVerificationId) return;
-        await safeRefetch("verification.update", () =>
-            verificationUpdate.mutateAsync({
-                id: testVerificationId,
-                value: makeId(),
-            })
-        );
-    };
-
-    const onDeleteVerification = async () => {
-        if (!testVerificationId) return;
-        await safeRefetch("verification.delete", () =>
-            verificationDelete.mutateAsync({ id: testVerificationId })
-        );
-        setTestVerificationId(null);
-    };
-
     if (isPending) {
         return (
             <div className="rounded-md border p-4">
@@ -462,7 +392,7 @@ export function TestRoutersClient() {
                     </Button>
                     <Button
                         onClick={() =>
-                            testUserId
+                            effectiveUserId
                                 ? safeRefetch("user.getById", () =>
                                       userById.refetch()
                                   )
@@ -472,13 +402,16 @@ export function TestRoutersClient() {
                         user.getById
                     </Button>
                     <Button onClick={onCreateUser}>user.create</Button>
-                    <Button onClick={onUpdateUser} disabled={!testUserId}>
+                    <Button onClick={onUpdateUser} disabled={!effectiveUserId}>
                         user.update
                     </Button>
                     <Button onClick={onDeleteUser} disabled={!testUserId}>
                         user.delete
                     </Button>
                 </div>
+                <p className="text-muted-foreground text-xs">
+                    sessionUserId: {sessionUserId ?? "(none)"}
+                </p>
                 <p className="text-muted-foreground text-xs">
                     testUserId: {testUserId ?? "(none)"}
                 </p>
@@ -650,45 +583,7 @@ export function TestRoutersClient() {
 
             <div className="space-y-2">
                 <h2 className="text-lg font-semibold">Session</h2>
-                <div className="flex flex-wrap gap-2">
-                    <Button
-                        onClick={() =>
-                            safeRefetch("session.list", () =>
-                                sessionList.refetch()
-                            )
-                        }
-                    >
-                        session.list
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            testSessionId
-                                ? safeRefetch("session.getById", () =>
-                                      sessionById.refetch()
-                                  )
-                                : logLine(
-                                      "session.getById: missing test session"
-                                  )
-                        }
-                    >
-                        session.getById
-                    </Button>
-                    <Button
-                        onClick={onCreateSession}
-                        disabled={!effectiveUserId}
-                    >
-                        session.create
-                    </Button>
-                    <Button onClick={onUpdateSession} disabled={!testSessionId}>
-                        session.update
-                    </Button>
-                    <Button onClick={onDeleteSession} disabled={!testSessionId}>
-                        session.delete
-                    </Button>
-                </div>
-                <p className="text-muted-foreground text-xs">
-                    testSessionId: {testSessionId ?? "(none)"}
-                </p>
+                <div className="flex flex-wrap gap-2"></div>
             </div>
 
             <div className="space-y-2">
@@ -736,48 +631,7 @@ export function TestRoutersClient() {
 
             <div className="space-y-2">
                 <h2 className="text-lg font-semibold">Verification</h2>
-                <div className="flex flex-wrap gap-2">
-                    <Button
-                        onClick={() =>
-                            safeRefetch("verification.list", () =>
-                                verificationList.refetch()
-                            )
-                        }
-                    >
-                        verification.list
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            testVerificationId
-                                ? safeRefetch("verification.getById", () =>
-                                      verificationById.refetch()
-                                  )
-                                : logLine(
-                                      "verification.getById: missing test verification"
-                                  )
-                        }
-                    >
-                        verification.getById
-                    </Button>
-                    <Button onClick={onCreateVerification}>
-                        verification.create
-                    </Button>
-                    <Button
-                        onClick={onUpdateVerification}
-                        disabled={!testVerificationId}
-                    >
-                        verification.update
-                    </Button>
-                    <Button
-                        onClick={onDeleteVerification}
-                        disabled={!testVerificationId}
-                    >
-                        verification.delete
-                    </Button>
-                </div>
-                <p className="text-muted-foreground text-xs">
-                    testVerificationId: {testVerificationId ?? "(none)"}
-                </p>
+                <div className="flex flex-wrap gap-2"></div>
             </div>
 
             <div className="space-y-2">

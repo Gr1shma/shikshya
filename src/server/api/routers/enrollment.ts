@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { enrollment } from "~/server/db/schema";
+import { enrollment, user } from "~/server/db/schema";
 
 export const enrollmentRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
@@ -40,6 +41,18 @@ export const enrollmentRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            if (input.userId !== ctx.session.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const dbUser = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (dbUser?.role !== "student") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [created] = await ctx.db
                 .insert(enrollment)
                 .values({
@@ -61,6 +74,18 @@ export const enrollmentRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            if (input.userId !== ctx.session.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const dbUser = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (dbUser?.role !== "student") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [updated] = await ctx.db
                 .update(enrollment)
                 .set({
@@ -85,6 +110,18 @@ export const enrollmentRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            if (input.userId !== ctx.session.user.id) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const dbUser = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (dbUser?.role !== "student") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [deleted] = await ctx.db
                 .delete(enrollment)
                 .where(
