@@ -1,3 +1,4 @@
+import { Button } from "~/components/ui/button";
 import { getSession } from "~/server/better-auth/server";
 import { api, HydrateClient } from "~/trpc/server";
 
@@ -10,7 +11,7 @@ export default async function Home() {
 
     return (
         <HydrateClient>
-            ShikShya
+            <Button>ShikShya</Button>
         </HydrateClient>
     );
 }
