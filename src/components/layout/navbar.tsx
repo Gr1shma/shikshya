@@ -10,10 +10,10 @@ import {
     BookOpen,
     Menu,
     X,
-    User,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import ProfileSidebar from "./sidebar";
+import Image from "next/image";
 
 const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -91,7 +91,7 @@ export default function Navbar() {
                                 onClick={() => setIsProfileOpen(true)}
                                 className="group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-slate-900 transition-all hover:border-indigo-500/50"
                             >
-                                <img
+                                <Image
                                     src={userData.image}
                                     alt="Profile"
                                     className="h-full w-full object-cover"

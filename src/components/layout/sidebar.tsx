@@ -12,6 +12,7 @@ import {
     Mail,
     ChevronRight,
 } from "lucide-react";
+import Image from "next/image";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -69,7 +70,7 @@ export default function ProfileSidebar({
                             {/* User Info Card */}
                             <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-6 text-center shadow-inner">
                                 <div className="mx-auto mb-4 h-20 w-20 rounded-full border-2 border-indigo-500 p-1">
-                                    <img
+                                    <Image
                                         src={user.image}
                                         alt="Avatar"
                                         className="h-full w-full rounded-full bg-slate-800"

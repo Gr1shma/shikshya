@@ -11,9 +11,11 @@ import {
     Bot,
     UserCircle,
 } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 export default function LearnPage() {
+    const searchParams = useSearchParams();
+    const fileName = searchParams.get("file") ?? "document.pdf";
     const [message, setMessage] = useState("");
 
     return (
@@ -98,9 +100,9 @@ export default function LearnPage() {
                 <div className="flex items-center justify-between border-b border-white/5 bg-slate-900/30 p-4">
                     <div className="flex items-center gap-2">
                         <FileText className="h-5 w-5 text-rose-500" />
-                        <span className="max-w-[200px] truncate text-sm font-medium text-slate-300">
-                            Something.pdf
-                        </span>
+                        <span className="text-sm font-medium text-slate-300 truncate max-w-[250px]">
+                {fileName}
+            </span>
                     </div>
                     <div className="flex items-center gap-1">
                         <button className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5">
