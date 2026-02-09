@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
+import { Markdown } from "~/components/markdown";
 
 interface ChatInterfaceProps {
     noteId: string;
@@ -93,10 +94,10 @@ export function ChatInterface({ noteId }: ChatInterfaceProps) {
                                 "max-w-[80%] rounded-lg px-4 py-2 text-sm",
                                 m.role === "user"
                                     ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground"
+                                    : "text-muted-foreground"
                             )}
                         >
-                            {getMessageText(m.parts)}
+                            <Markdown>{getMessageText(m.parts)}</Markdown>
                         </div>
                     </div>
                 ))}

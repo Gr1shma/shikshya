@@ -2,7 +2,8 @@ import { google } from "@ai-sdk/google";
 import { streamText, convertToModelMessages, type UIMessage } from "ai";
 import { headers } from "next/headers";
 
-import { auth } from "~/server/better-auth/config";
+import { createCaller } from "~/server/api/root";
+import { createTRPCContext } from "~/server/api/trpc";
 
 interface ChatRequest {
     messages: UIMessage[];
@@ -12,22 +13,42 @@ interface ChatRequest {
 export async function POST(req: Request) {
     const { messages, noteId } = (await req.json()) as ChatRequest;
 
-    const session = await auth.api.getSession({
+    const context = await createTRPCContext({
         headers: await headers(),
     });
 
-    if (!session) {
+    if (!context.session) {
         return new Response("Unauthorized", { status: 401 });
     }
 
+    const caller = createCaller(context);
+
     if (!noteId) {
         return new Response("Note ID is required", { status: 400 });
+    }
+
+    const note = await caller.note.getById({ id: noteId });
+
+    if (!note) {
+        return new Response("Note not found", { status: 404 });
     }
 
     const modelMessages = await convertToModelMessages(messages);
 
     const result = streamText({
         model: google("gemini-2.5-flash"),
+        system: `You are an expert, empathetic, and encouraging AI tutor. 
+Your goal is to help the student deeply understand the provided note content.
+
+### INSTRUCTIONS:
+1. **Use the Note Context:** Answer questions primarily based on the provided text content. If the answer is in the text, use it to support your explanation.
+2. **Be a Tutor, Not just a Summarizer:** Instead of just giving direct answers, explain the "why" and "how". If appropriate, ask follow-up questions to check the student's understanding.
+3. **Handle Missing Information:** If a student asks something not covered in the note, politely state that the information is not in the current material, and offer to provide general knowledge on the topic instead.
+4. **Formatting:** Use Markdown to make your answers readable (bullet points, bold text for key terms, etc.). Keep explanations concise but thorough.
+
+### NOTE CONTENT:
+${note.textContent ?? "No text content available."}
+`,
         messages: modelMessages,
     });
 
