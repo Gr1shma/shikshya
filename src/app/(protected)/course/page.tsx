@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { api, HydrateClient } from "~/trpc/server";
 import { CourseList } from "~/modules/course/features/course-list";
 import { CourseListSkeleton } from "~/modules/course/features/course-list-skeleton";
+import { CreateCourseDialog } from "~/modules/course/features/create-course-dialog";
 
 export default async function CoursePage() {
     void api.course.list.prefetch();
@@ -18,6 +19,7 @@ export default async function CoursePage() {
                             Browse and manage your courses
                         </p>
                     </div>
+                    <CreateCourseDialog />
                 </div>
                 <Suspense fallback={<CourseListSkeleton />}>
                     <CourseList />

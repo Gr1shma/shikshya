@@ -28,6 +28,7 @@ export const noteRouter = createTRPCRouter({
                 fileUrl: z.string().min(1),
                 textContent: z.string().optional(),
                 courseId: z.string().uuid(),
+                folderId: z.string().uuid().nullable().optional(),
                 createdAt: z.coerce.date().optional(),
             })
         )
@@ -39,6 +40,7 @@ export const noteRouter = createTRPCRouter({
                     fileUrl: input.fileUrl,
                     textContent: input.textContent,
                     courseId: input.courseId,
+                    folderId: input.folderId ?? null,
                     createdAt: input.createdAt ?? new Date(),
                 })
                 .returning();
@@ -54,17 +56,30 @@ export const noteRouter = createTRPCRouter({
                 fileUrl: z.string().min(1).optional(),
                 textContent: z.string().optional(),
                 courseId: z.string().uuid().optional(),
+                folderId: z.string().uuid().nullable().optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const updateData: {
+                title?: string;
+                fileUrl?: string;
+                textContent?: string;
+                courseId?: string;
+                folderId?: string | null;
+            } = {};
+
+            if (input.title !== undefined) updateData.title = input.title;
+            if (input.fileUrl !== undefined) updateData.fileUrl = input.fileUrl;
+            if (input.textContent !== undefined)
+                updateData.textContent = input.textContent;
+            if (input.courseId !== undefined)
+                updateData.courseId = input.courseId;
+            if (input.folderId !== undefined)
+                updateData.folderId = input.folderId;
+
             const [updated] = await ctx.db
                 .update(note)
-                .set({
-                    title: input.title,
-                    fileUrl: input.fileUrl,
-                    textContent: input.textContent,
-                    courseId: input.courseId,
-                })
+                .set(updateData)
                 .where(eq(note.id, input.id))
                 .returning();
 

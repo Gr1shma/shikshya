@@ -18,7 +18,12 @@ export const ourFileRouter = {
             maxFileCount: 1,
         },
     })
-        .input(z.object({ courseId: z.string().uuid() }))
+        .input(
+            z.object({
+                courseId: z.string().uuid(),
+                folderId: z.string().uuid().nullable().optional(),
+            })
+        )
         .middleware(async ({ input }) => {
             const context = await createTRPCContext({
                 headers: await headers(),
@@ -50,6 +55,7 @@ export const ourFileRouter = {
                 return {
                     userId: context.session?.user.id,
                     courseId: input.courseId,
+                    folderId: input.folderId,
                 };
             } catch (error) {
                 if (error instanceof UploadThingError) throw error;
@@ -63,6 +69,7 @@ export const ourFileRouter = {
         .onUploadComplete(async ({ metadata, file }) => {
             console.log("PDF upload complete for userId:", metadata.userId);
             console.log("Course ID:", metadata.courseId);
+            console.log("Folder ID:", metadata.folderId);
             console.log("File URL:", file.ufsUrl);
 
             // Extract text content from the uploaded PDF
@@ -81,10 +88,11 @@ export const ourFileRouter = {
                 const [created] = await db
                     .insert(note)
                     .values({
-                        title: file.name ?? "Uploaded Note",
+                        title: file.name,
                         fileUrl: file.ufsUrl,
                         textContent,
                         courseId: metadata.courseId,
+                        folderId: metadata.folderId,
                     })
                     .returning();
                 console.log("Note created successfully:", created?.id);
@@ -95,6 +103,7 @@ export const ourFileRouter = {
             return {
                 uploadedBy: metadata.userId,
                 courseId: metadata.courseId,
+                folderId: metadata.folderId,
                 pdfUrl: file.ufsUrl,
             };
         }),
