@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { authClient } from "~/lib/auth-client";
@@ -19,6 +19,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export default function AuthPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const defaultTab =
+        searchParams.get("tab") === "signup" ? "signup" : "signin";
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -116,7 +119,7 @@ export default function AuthPage() {
                 </CardHeader>
 
                 <CardContent className="pb-8">
-                    <Tabs defaultValue="signin" className="w-full">
+                    <Tabs defaultValue={defaultTab} className="w-full">
                         <TabsList className="grid w-full grid-cols-2 bg-slate-800">
                             <TabsTrigger value="signin">Sign In</TabsTrigger>
                             <TabsTrigger value="signup">Sign Up</TabsTrigger>

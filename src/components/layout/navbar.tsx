@@ -12,7 +12,7 @@ import { UserAvatar } from "../user-avatar";
 
 const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Courses", path: "/courses", icon: LibraryBig },
+    { name: "Courses", path: "/course", icon: LibraryBig },
     { name: "Learn", path: "/learn", icon: BookOpen },
 ];
 
