@@ -84,8 +84,6 @@ export default function SignUpPage() {
                 name: data.name,
                 email: data.email,
                 password: data.password,
-                // Pass role to metadata if your auth client supports it
-                // metadata: { role: data.role }
             });
 
             if (response.error) {
