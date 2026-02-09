@@ -6,61 +6,67 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard,
-    MessageSquare,
-    BedDouble,
-    Receipt,
+    LibraryBig,
+    BookOpen,
     Menu,
     X,
-    LogOut,
+    User,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
+import ProfileSidebar from "./sidebar";
 
 const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Complaints", path: "/complaints", icon: MessageSquare },
-    { name: "Rooms", path: "/rooms", icon: BedDouble },
-    { name: "Bills", path: "/bills", icon: Receipt },
+    { name: "Courses", path: "/courses", icon: LibraryBig },
+    { name: "Learn", path: "/learn", icon: BookOpen },
 ];
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const pathname = usePathname();
 
-    return (
-        <nav className="fixed inset-x-0 top-0 z-50 w-full px-4 py-4">
-            <div className="mx-auto max-w-7xl">
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 p-2 pl-6 shadow-2xl shadow-indigo-500/10 backdrop-blur-md">
-                    {/* Logo with Hindi "Shi" for Shiksha */}
-                    <Link
-                        href="/dashboard"
-                        className="group flex items-center gap-2"
-                    >
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-transform group-hover:rotate-12">
-                            <span className="text-lg font-bold text-white">
-                                शि
-                            </span>
-                        </div>
-                        <span className="text-xl font-bold tracking-tight text-white">
-                            Shiksha<span className="text-indigo-400">Flow</span>
-                        </span>
-                    </Link>
+    const userData = {
+        name: "Aarav Sharma",
+        email: "aarav.shiksha@edu.com",
+        role: "Student",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav",
+    };
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden items-center gap-1 md:flex">
-                        {navItems.map((item) => {
-                            const isActive = pathname === item.path;
-                            return (
+    return (
+        <>
+            <nav className="fixed inset-x-0 top-0 z-50 w-full px-4 py-4">
+                <div className="mx-auto max-w-7xl">
+                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 p-2 pl-6 shadow-2xl shadow-indigo-500/10 backdrop-blur-md">
+                        {/* Logo */}
+                        <Link
+                            href="/dashboard"
+                            className="group flex items-center gap-2"
+                        >
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-transform group-hover:rotate-12">
+                                <span className="text-lg font-bold text-white">
+                                    शि
+                                </span>
+                            </div>
+                            <span className="text-xl font-bold tracking-tight text-white">
+                                Shik<span className="text-xl">क्ष</span>ya
+                            </span>
+                        </Link>
+
+                        {/* Desktop Nav */}
+                        <div className="hidden items-center gap-1 md:flex">
+                            {navItems.map((item) => (
                                 <Link
                                     key={item.path}
                                     href={item.path}
                                     className={cn(
                                         "relative rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                                        isActive
+                                        pathname === item.path
                                             ? "text-white"
                                             : "text-slate-400 hover:bg-white/5 hover:text-white"
                                     )}
                                 >
-                                    {isActive && (
+                                    {pathname === item.path && (
                                         <motion.div
                                             layoutId="nav-active"
                                             className="absolute inset-0 rounded-lg border border-indigo-500/30 bg-indigo-600/20"
@@ -76,40 +82,42 @@ export default function Navbar() {
                                         {item.name}
                                     </span>
                                 </Link>
-                            );
-                        })}
-                    </div>
+                            ))}
+                        </div>
 
-                    {/* Action Button */}
-                    <div className="hidden pr-2 md:block">
-                        <Link
-                            href="/login"
-                            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-indigo-500 active:scale-95"
-                        >
-                            Log In
-                        </Link>
-                    </div>
+                        {/* Profile & Mobile Toggle */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setIsProfileOpen(true)}
+                                className="group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-slate-900 transition-all hover:border-indigo-500/50"
+                            >
+                                <img
+                                    src={userData.image}
+                                    alt="Profile"
+                                    className="h-full w-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100" />
+                            </button>
 
-                    {/* Mobile Toggle */}
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="mr-2 p-2 text-slate-300 md:hidden"
-                    >
-                        {isOpen ? <X /> : <Menu />}
-                    </button>
+                            <button
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="p-2 text-slate-300 md:hidden"
+                            >
+                                {isOpen ? <X size={24} /> : <Menu size={24} />}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Mobile Sidebar */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.aside
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className="fixed top-0 right-0 h-full w-64 border-l border-white/10 bg-slate-950 p-6 shadow-2xl md:hidden"
-                    >
-                        <div className="flex h-full flex-col">
+                {/* Mobile Menu (Standard Nav) */}
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.aside
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            className="fixed top-0 right-0 h-full w-64 border-l border-white/10 bg-slate-950 p-6 shadow-2xl md:hidden"
+                        >
                             <div className="mb-8 flex justify-end">
                                 <button
                                     onClick={() => setIsOpen(false)}
@@ -136,15 +144,17 @@ export default function Navbar() {
                                     </Link>
                                 ))}
                             </nav>
-                            <div className="mt-auto border-t border-white/5 pt-6">
-                                <button className="flex w-full items-center gap-3 rounded-xl p-4 text-red-400 transition-colors hover:bg-red-400/10">
-                                    <LogOut className="h-5 w-5" /> Sign Out
-                                </button>
-                            </div>
-                        </div>
-                    </motion.aside>
-                )}
-            </AnimatePresence>
-        </nav>
+                        </motion.aside>
+                    )}
+                </AnimatePresence>
+            </nav>
+
+            {/* Imported Sidebar Component */}
+            <ProfileSidebar
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
+                user={userData}
+            />
+        </>
     );
 }

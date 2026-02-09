@@ -4,7 +4,13 @@ import { eq } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { message } from "~/server/db/schema";
 
-const messageRoleSchema = z.enum(["user", "system", "assistant", "data", "tool"]);
+const messageRoleSchema = z.enum([
+    "user",
+    "system",
+    "assistant",
+    "data",
+    "tool",
+]);
 
 export const messageRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
