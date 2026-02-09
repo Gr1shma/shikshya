@@ -36,6 +36,7 @@ export default function RootLayout({
                     >
                         {children}
                     </ThemeProvider>
+                    <Toaster richColors position="top-right" />
                 </TRPCReactProvider>
             </body>
         </html>
