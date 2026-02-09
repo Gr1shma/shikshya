@@ -7,6 +7,7 @@ import {
     ChevronRight,
     Trophy,
     Clock,
+    Bell,
 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -35,16 +36,30 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen bg-[#020617] p-6 text-slate-200 md:p-10">
             {/* Top Navigation / Header */}
-            <header className="mx-auto mb-12 text-center">
-  <h1 className="text-2xl font-medium text-white">
-    Welcome, <span className="text-indigo-400">@user</span>
-  </h1>
-
-  <p className="mt-1 text-sm text-slate-400">
-    Ready to learn something new today?
-  </p>
-</header>
-
+            <header className="mx-auto mb-10 flex max-w-7xl items-center justify-between">
+                <div>
+                    <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+                        Hello <span className="text-indigo-400">@user</span>,
+                    </h1>
+                    <p className="text-slate-400">
+                        Welcome to{" "}
+                        <span className="font-semibold tracking-tight text-indigo-400">
+                            Shik<span className="text-lg">क्ष</span>ya
+                        </span>
+                    </p>
+                </div>
+                <div className="flex gap-4">
+                    <Button
+                        variant="outline"
+                        className="size-10 rounded-full border-slate-800 bg-slate-900/50 p-0 hover:bg-slate-800"
+                    >
+                        <Bell className="size-5 text-indigo-400" />
+                    </Button>
+                    <div className="flex size-10 items-center justify-center rounded-full border-2 border-indigo-400/30 bg-indigo-600 font-bold text-white">
+                        U
+                    </div>
+                </div>
+            </header>
 
             <main className="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-3">
                 {/* Left Column: Streak & Pinned Courses */}
