@@ -24,7 +24,7 @@ export const StreakCard = ({ streakPoints = 1240 }: StreakCardProps) => {
                         />
                     </div>
                     <div>
-                        <span className="text-5xl font-black tracking-tighter text-white">
+                        <span className="text-3xl font-black tracking-tighter text-white">
                             {streakPoints}
                         </span>
                         <p className="ml-1 font-medium text-slate-400">

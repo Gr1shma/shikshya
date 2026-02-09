@@ -1,80 +1,80 @@
 import React from "react";
-import { BookOpen, ChevronRight } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
-
-// Mock data type, can be moved to a shared type file if needed
-type Course = {
-    id: number;
-    name: string;
-    progress: number;
-    color: string;
-};
-
-interface PinnedCoursesProps {
-    courses?: Course[];
-}
+import { Pin, ArrowUpRight } from "lucide-react";
+import { Card } from "~/components/ui/card";
 
 export const PinnedCourses = ({
     courses = [
         {
             id: 1,
             name: "Bct i/ii",
-            progress: 65,
-            color: "from-blue-500 to-indigo-500",
+            code: "BCT102",
+            color: "border-blue-500",
+            glow: "shadow-blue-500/20",
+            text: "text-blue-400",
         },
         {
             id: 2,
             name: "Bct iii/i",
-            progress: 30,
-            color: "from-purple-500 to-pink-500",
+            code: "BCT301",
+            color: "border-purple-500",
+            glow: "shadow-purple-500/20",
+            text: "text-purple-400",
         },
     ],
-}: PinnedCoursesProps) => {
+}) => {
     return (
-        <section className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
-                    <BookOpen className="size-5 text-indigo-400" />
+        <section className="w-full space-y-4">
+            <div className="flex items-center justify-between px-1">
+                <h2 className="flex items-center gap-2 text-[11px] font-black tracking-[0.2em] text-slate-200 uppercase">
+                    <Pin className="size-3.5 rotate-45 fill-indigo-500/20 text-indigo-500" />
                     Pinned Courses
                 </h2>
-                <Button variant="link" className="text-sm text-indigo-400">
-                    View All
-                </Button>
+                <button className="text-[10px] font-bold tracking-tighter text-indigo-400 transition-colors hover:text-indigo-300">
+                    MANAGE ALL
+                </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3">
                 {courses.map((course) => (
                     <Card
                         key={course.id}
-                        className="group cursor-pointer border-slate-800 bg-slate-900/40 transition-all hover:scale-[1.02] hover:bg-slate-900/60 active:scale-95"
+                        className={`group relative overflow-hidden border-slate-800/60 bg-[#16161e]/80 p-4 backdrop-blur-xl transition-all hover:border-slate-600 hover:bg-[#1a1b26] active:scale-[0.99]`}
                     >
-                        <CardContent className="p-6">
-                            <div className="mb-6 flex items-start justify-between">
-                                <div
-                                    className={`size-12 rounded-xl bg-gradient-to-br ${course.color} flex items-center justify-center shadow-lg shadow-indigo-500/20`}
+                        {/* Interactive Accent Glow */}
+                        <div
+                            className={`absolute top-0 left-0 h-full w-[3px] ${course.color.replace("border-", "bg-")} opacity-0 transition-opacity group-hover:opacity-100`}
+                        />
+
+                        <div className="flex items-center gap-5">
+                            {/* Course Icon Badge */}
+                            <div
+                                className={`flex size-12 shrink-0 items-center justify-center rounded-xl border-2 ${course.color} bg-[#0a0a0c] shadow-lg ${course.glow}`}
+                            >
+                                <span
+                                    className={`text-[11px] font-black tracking-tighter ${course.text}`}
                                 >
-                                    <span className="text-xs font-bold text-white uppercase">
-                                        Bct
-                                    </span>
-                                </div>
-                                <ChevronRight className="text-slate-600 transition-colors group-hover:text-indigo-400" />
+                                    {/* FIX: TS Safe Access */}
+                                    {course.name
+                                        ?.split(" ")[0]
+                                        ?.toUpperCase() ?? "COURSE"}
+                                </span>
                             </div>
-                            <h4 className="mb-2 text-lg font-bold text-white">
-                                {course.name}
-                            </h4>
-                            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                                <div
-                                    className="h-full rounded-full bg-indigo-500 transition-all duration-1000"
-                                    style={{
-                                        width: `${course.progress}%`,
-                                    }}
+
+                            <div className="flex min-w-0 flex-col">
+                                <h4 className="truncate text-base font-bold text-white transition-colors group-hover:text-indigo-100">
+                                    {course.name}
+                                </h4>
+                                <span className="font-mono text-[11px] font-bold text-slate-500 group-hover:text-slate-400">
+                                    {course.code}
+                                </span>
+                            </div>
+
+                            <div className="ml-auto rounded-full border border-slate-800 bg-slate-900/50 p-2 transition-all group-hover:border-indigo-500/50">
+                                <ArrowUpRight
+                                    className={`size-4 text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-indigo-400`}
                                 />
                             </div>
-                            <p className="mt-2 text-xs text-slate-500">
-                                {course.progress}% Completed
-                            </p>
-                        </CardContent>
+                        </div>
                     </Card>
                 ))}
             </div>

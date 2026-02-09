@@ -3,31 +3,35 @@ import { DashboardHeader } from "../components/header";
 import { StreakCard } from "../components/streak-card";
 import { PinnedCourses } from "../components/pinned-courses";
 import { CalendarWidget } from "../components/calendar-widget";
-import { WeeklyGoal } from "../components/weekly-goal";
+import { MiniTodo } from "../components/mini-todo";
 
 export const DashboardView = () => {
     return (
         <div className="min-h-screen bg-[#020617] p-6 text-slate-200 md:p-10">
-            {/* Top Navigation / Header */}
             <DashboardHeader />
 
-            <main className="mx-auto grid max-w-7xl grid-cols-1 gap-8 lg:grid-cols-3">
-                {/* Left Column: Streak & Pinned Courses */}
-                <div className="space-y-8 lg:col-span-2">
-                    {/* Streak Card */}
-                    <StreakCard />
-
-                    {/* Pinned Courses Section */}
-                    <PinnedCourses />
+            <main className="mx-auto max-w-7xl space-y-8">
+                {/* Top Row: Streak (Wide) and Calendar (Narrow) */}
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
+                        <StreakCard />
+                    </div>
+                    <div className="lg:col-span-1">
+                        <CalendarWidget />
+                    </div>
                 </div>
 
-                {/* Right Column: Calendar & Activities */}
-                <div className="space-y-8">
-                    {/* Calendar Mini-Widget */}
-                    <CalendarWidget />
+                {/* Bottom Row: 30/70 Split for Todo and Pinned Courses */}
+                <div className="flex flex-col gap-8 lg:flex-row">
+                    {/* Left: Mini Todo (30%) */}
+                    <div className="w-full lg:w-[30%]">
+                        <MiniTodo />
+                    </div>
 
-                    {/* Quick Actions / Side Fun */}
-                    <WeeklyGoal />
+                    {/* Right: Pinned Courses (70%) */}
+                    <div className="w-full lg:w-[70%]">
+                        <PinnedCourses />
+                    </div>
                 </div>
             </main>
         </div>
