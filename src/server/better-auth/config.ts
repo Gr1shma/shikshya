@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "~/server/db";
 import * as schema from "~/server/db/schema";
+import { env } from "~/env";
 
 export const auth = betterAuth({
     baseURL:
@@ -10,8 +11,11 @@ export const auth = betterAuth({
         provider: "pg",
         schema,
     }),
-    emailAndPassword: {
-        enabled: true,
+    socialProviders: {
+        google: {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+        },
     },
     user: {
         additionalFields: {
@@ -19,7 +23,7 @@ export const auth = betterAuth({
                 type: "string",
                 required: true,
                 defaultValue: "student",
-                input: true, // Allow this field during signup
+                input: true,
                 fieldName: "role",
             },
         },

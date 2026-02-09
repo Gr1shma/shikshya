@@ -1,6 +1,5 @@
 "use client";
 
-
 import { createContext, useContext } from "react";
 import ShikiHighlighter from "react-shiki";
 import { Copy } from "lucide-react";
@@ -37,11 +36,11 @@ function Codebar({ lang = "plain", codeString }: CodebarProps) {
 
     return (
         <div className="flex h-9 items-center justify-between rounded-md border-b px-3">
-            <span className="text-xs text-muted-foreground">{lang}</span>
+            <span className="text-muted-foreground text-xs">{lang}</span>
             <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 hover:bg-muted-foreground/10"
+                className="hover:bg-muted-foreground/10 h-7 w-7"
                 onClick={onCopy}
             >
                 <Copy className="size-3.5" />
@@ -62,7 +61,7 @@ export function CodeBlock({
     if (match) {
         const lang = match[1];
         return (
-            <div className="my-6 rounded-lg border bg-muted shadow-sm">
+            <div className="bg-muted my-6 rounded-lg border shadow-sm">
                 <Codebar lang={lang} codeString={children as string} />
                 <ShikiHighlighter
                     language={lang}

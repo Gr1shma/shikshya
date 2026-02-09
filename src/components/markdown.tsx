@@ -20,14 +20,14 @@ const Think = ({ children }: { children: ReactNode }) => {
     const [open, setOpen] = useState(false);
     return (
         <details
-            className="group my-2 text-muted-foreground"
+            className="group text-muted-foreground my-2"
             open={open}
             onToggle={(e) => setOpen(e.currentTarget.open)}
         >
             <summary
                 className={cn(
-                    "flex cursor-pointer select-none items-center gap-1.5",
-                    "text-sm font-medium transition-colors duration-200 hover:text-foreground"
+                    "flex cursor-pointer items-center gap-1.5 select-none",
+                    "hover:text-foreground text-sm font-medium transition-colors duration-200"
                 )}
             >
                 <ChevronRight
@@ -128,42 +128,42 @@ const components: Partial<Components> = {
     },
     h1: ({ children, ...props }) => {
         return (
-            <h1 className="mb-2 mt-6 text-3xl font-semibold" {...props}>
+            <h1 className="mt-6 mb-2 text-3xl font-semibold" {...props}>
                 {children}
             </h1>
         );
     },
     h2: ({ children, ...props }) => {
         return (
-            <h2 className="mb-2 mt-6 text-2xl font-semibold" {...props}>
+            <h2 className="mt-6 mb-2 text-2xl font-semibold" {...props}>
                 {children}
             </h2>
         );
     },
     h3: ({ children, ...props }) => {
         return (
-            <h3 className="mb-2 mt-6 text-xl font-semibold" {...props}>
+            <h3 className="mt-6 mb-2 text-xl font-semibold" {...props}>
                 {children}
             </h3>
         );
     },
     h4: ({ children, ...props }) => {
         return (
-            <h4 className="mb-2 mt-6 text-lg font-semibold" {...props}>
+            <h4 className="mt-6 mb-2 text-lg font-semibold" {...props}>
                 {children}
             </h4>
         );
     },
     h5: ({ children, ...props }) => {
         return (
-            <h5 className="mb-2 mt-6 text-base font-semibold" {...props}>
+            <h5 className="mt-6 mb-2 text-base font-semibold" {...props}>
                 {children}
             </h5>
         );
     },
     h6: ({ children, ...props }) => {
         return (
-            <h6 className="mb-2 mt-6 text-sm font-semibold" {...props}>
+            <h6 className="mt-6 mb-2 text-sm font-semibold" {...props}>
                 {children}
             </h6>
         );
@@ -189,7 +189,7 @@ const components: Partial<Components> = {
     ),
     th: ({ children, ...props }) => (
         <TableHead
-            className="h-9 px-4 text-xs font-medium text-muted-foreground"
+            className="text-muted-foreground h-9 px-4 text-xs font-medium"
             {...props}
         >
             {children}
