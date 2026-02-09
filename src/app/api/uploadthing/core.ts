@@ -5,6 +5,9 @@ import { headers } from "next/headers";
 
 import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
+import { extractTextFromPdf } from "~/lib/pdf-parser";
+import { db } from "~/server/db";
+import { note } from "~/server/db/schema";
 
 const f = createUploadthing();
 
@@ -39,7 +42,8 @@ export const ourFileRouter = {
                     // eslint-disable-next-line @typescript-eslint/only-throw-error
                     throw new UploadThingError({
                         code: "FORBIDDEN",
-                        message: "You are not authorized to upload to this course",
+                        message:
+                            "You are not authorized to upload to this course",
                     });
                 }
 
@@ -61,19 +65,31 @@ export const ourFileRouter = {
             console.log("Course ID:", metadata.courseId);
             console.log("File URL:", file.ufsUrl);
 
-            const context = await createTRPCContext({
-                headers: await headers(),
-            });
-            const caller = createCaller(context);
-
+            // Extract text content from the uploaded PDF
+            let textContent: string | undefined;
             try {
-                await caller.note.create({
-                    title: file.name ?? "Uploaded Note",
-                    fileUrl: file.ufsUrl,
-                    courseId: metadata.courseId,
-                });
+                textContent = await extractTextFromPdf(file.ufsUrl);
+                console.log("Extracted text length:", textContent.length);
             } catch (error) {
-                console.error("Failed to create note via tRPC:", error);
+                console.error("Failed to extract PDF text:", error);
+            }
+
+            // Insert directly into database since onUploadComplete runs as a
+            // webhook callback without access to original request auth context.
+            // User was already validated in middleware, so this is safe.
+            try {
+                const [created] = await db
+                    .insert(note)
+                    .values({
+                        title: file.name ?? "Uploaded Note",
+                        fileUrl: file.ufsUrl,
+                        textContent,
+                        courseId: metadata.courseId,
+                    })
+                    .returning();
+                console.log("Note created successfully:", created?.id);
+            } catch (error) {
+                console.error("Failed to create note in database:", error);
             }
 
             return {

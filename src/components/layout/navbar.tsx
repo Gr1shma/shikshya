@@ -4,13 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-    LayoutDashboard,
-    LibraryBig,
-    BookOpen,
-    Menu,
-    X,
-} from "lucide-react";
+import { LayoutDashboard, LibraryBig, BookOpen, Menu, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import ProfileSidebar from "./sidebar";
 import Image from "next/image";

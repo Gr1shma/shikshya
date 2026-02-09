@@ -90,8 +90,8 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <p className="mt-6 max-w-md text-sm text-slate-400">
-                                You&apos;re on fire! Complete one more lesson today
-                                to keep your 7-day streak alive.
+                                You&apos;re on fire! Complete one more lesson
+                                today to keep your 7-day streak alive.
                             </p>
                         </CardContent>
                     </Card>
