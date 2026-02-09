@@ -26,7 +26,17 @@ export const auth = betterAuth({
                 input: true,
                 fieldName: "role",
             },
+            onboardingCompleted: {
+                type: "boolean",
+                required: true,
+                defaultValue: false,
+                input: false,
+                fieldName: "onboardingCompleted",
+            },
         },
+    },
+    emailAndPassword: {
+        enabled: true,
     },
 });
 

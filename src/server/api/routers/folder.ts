@@ -69,24 +69,24 @@ export const folderRouter = createTRPCRouter({
             const whereCondition =
                 input.folderId === null
                     ? and(
-                        eq(folder.courseId, input.courseId),
-                        isNull(folder.parentId)
-                    )
+                          eq(folder.courseId, input.courseId),
+                          isNull(folder.parentId)
+                      )
                     : and(
-                        eq(folder.courseId, input.courseId),
-                        eq(folder.parentId, input.folderId)
-                    );
+                          eq(folder.courseId, input.courseId),
+                          eq(folder.parentId, input.folderId)
+                      );
 
             const notesWhereCondition =
                 input.folderId === null
                     ? and(
-                        eq(note.courseId, input.courseId),
-                        isNull(note.folderId)
-                    )
+                          eq(note.courseId, input.courseId),
+                          isNull(note.folderId)
+                      )
                     : and(
-                        eq(note.courseId, input.courseId),
-                        eq(note.folderId, input.folderId)
-                    );
+                          eq(note.courseId, input.courseId),
+                          eq(note.folderId, input.folderId)
+                      );
 
             const [folders, notes] = await Promise.all([
                 ctx.db.select().from(folder).where(whereCondition),

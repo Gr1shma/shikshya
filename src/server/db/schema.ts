@@ -33,6 +33,9 @@ export const user = pgTable("user", {
         .notNull(),
     image: text("image"),
     role: userRoleEnum("role").notNull().default("student"),
+    onboardingCompleted: boolean("onboarding_completed")
+        .$defaultFn(() => false)
+        .notNull(),
     createdAt: timestamp("created_at")
         .$defaultFn(() => new Date())
         .notNull(),

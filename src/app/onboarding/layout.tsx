@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "~/server/better-auth/server";
-import MainLayout from "~/components/layout/main-layout";
 
-export default async function ProtectedLayout({
+export default async function OnboardingLayout({
     children,
 }: {
     children: React.ReactNode;
@@ -13,9 +12,9 @@ export default async function ProtectedLayout({
         redirect("/auth");
     }
 
-    if (!session.user.onboardingCompleted) {
-        redirect("/onboarding");
+    if (session.user.onboardingCompleted) {
+        redirect("/dashboard");
     }
 
-    return <MainLayout>{children}</MainLayout>;
+    return <>{children}</>;
 }

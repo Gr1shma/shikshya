@@ -60,7 +60,7 @@ export function CreateCourseDialog() {
     );
 
     // Only show for teachers
-    if (!user || user.role !== "teacher") {
+    if (user?.role !== "teacher") {
         return null;
     }
 

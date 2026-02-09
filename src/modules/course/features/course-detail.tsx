@@ -100,7 +100,8 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
             await startUpload(files, { courseId, folderId: currentFolderId });
             files.forEach((file) => options.onSuccess(file));
         } catch (error) {
-            const err = error instanceof Error ? error : new Error("Upload failed");
+            const err =
+                error instanceof Error ? error : new Error("Upload failed");
             files.forEach((file) => options.onError(file, err));
         }
     };
@@ -166,7 +167,7 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                                     {currentFolderId
                                         ? "Folder"
                                         : (course.description ??
-                                            "No description")}
+                                          "No description")}
                                 </p>
                             </div>
                         </div>
@@ -186,7 +187,10 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                                         Create
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-48"
+                                >
                                     <DropdownMenuItem
                                         onClick={() =>
                                             setIsCreateFolderOpen(true)
@@ -224,7 +228,7 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                     </div>
 
                     {contents.folders.length === 0 &&
-                        contents.notes.length === 0 ? (
+                    contents.notes.length === 0 ? (
                         <Card className="border-dashed border-slate-700 bg-slate-900/30">
                             <CardContent className="flex flex-col items-center justify-center py-12">
                                 <FileText className="mb-4 h-12 w-12 text-slate-600" />
@@ -269,7 +273,7 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                                     <Card className="h-full border-slate-700/50 bg-slate-900/50 transition-all hover:border-indigo-500/50 hover:bg-slate-900/80">
                                         <CardHeader className="pb-3">
                                             <CardTitle className="flex items-center gap-3 text-base text-white group-hover:text-indigo-400">
-                                                <Folder className="mt-0.5 h-5 w-5 shrink-0 text-indigo-400 fill-indigo-400/20" />
+                                                <Folder className="mt-0.5 h-5 w-5 shrink-0 fill-indigo-400/20 text-indigo-400" />
                                                 <span className="line-clamp-2">
                                                     {folder.name}
                                                 </span>
@@ -329,7 +333,7 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                     >
                         {/* Close Button */}
                         <button
-                            className="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+                            className="absolute top-4 right-4 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
                             onClick={() => setIsUploadModalOpen(false)}
                         >
                             <X className="h-5 w-5" />
@@ -366,7 +370,8 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                                     </div>
                                     <div>
                                         <p className="font-medium text-slate-300">
-                                            Drop your PDF here or click to browse
+                                            Drop your PDF here or click to
+                                            browse
                                         </p>
                                         <p className="mt-1 text-sm text-slate-500">
                                             PDF files only, max 16MB

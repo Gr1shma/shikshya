@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FolderPlus } from "lucide-react";
+
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import {
@@ -52,7 +52,10 @@ export function CreateFolderDialog({
             setOpen?.(false);
             setName("");
             // Invalidate the getContents query to refresh the list
-            void utils.folder.getContents.invalidate({ courseId, folderId: parentId });
+            void utils.folder.getContents.invalidate({
+                courseId,
+                folderId: parentId,
+            });
         },
         onError: (error) => {
             toast({

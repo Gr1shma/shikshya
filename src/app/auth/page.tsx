@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
 import { authClient } from "~/lib/auth-client";
 import {
     Card,
@@ -13,9 +13,16 @@ import {
     CardContent,
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-export default function SignInPage() {
+export default function AuthPage() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
@@ -24,6 +31,70 @@ export default function SignInPage() {
                 provider: "google",
                 callbackURL: "/dashboard",
             });
+        } catch {
+            toast.error("Something went wrong. Please try again.");
+            setIsLoading(false);
+        }
+    };
+
+    const handleEmailSignIn = async () => {
+        if (!email || !password) {
+            toast.error("Please fill in all fields");
+            return;
+        }
+        setIsLoading(true);
+        try {
+            await authClient.signIn.email(
+                {
+                    email,
+                    password,
+                    callbackURL: "/dashboard",
+                },
+                {
+                    onSuccess: () => {
+                        router.push("/dashboard");
+                    },
+                    onError: (ctx) => {
+                        toast.error(
+                            ctx.error.message || "Something went wrong."
+                        );
+                        setIsLoading(false);
+                    },
+                }
+            );
+        } catch {
+            toast.error("Something went wrong. Please try again.");
+            setIsLoading(false);
+        }
+    };
+
+    const handleEmailSignUp = async () => {
+        if (!email || !password || !name) {
+            toast.error("Please fill in all fields");
+            return;
+        }
+        setIsLoading(true);
+        try {
+            await authClient.signUp.email(
+                {
+                    email,
+                    password,
+                    name,
+                    callbackURL: "/onboarding",
+                },
+                {
+                    onSuccess: () => {
+                        toast.success("Account created!");
+                        router.push("/onboarding");
+                    },
+                    onError: (ctx) => {
+                        toast.error(
+                            ctx.error.message || "Something went wrong."
+                        );
+                        setIsLoading(false);
+                    },
+                }
+            );
         } catch {
             toast.error("Something went wrong. Please try again.");
             setIsLoading(false);
@@ -44,11 +115,117 @@ export default function SignInPage() {
                     </CardDescription>
                 </CardHeader>
 
-                <CardContent className="flex flex-col gap-4 pb-8">
+                <CardContent className="pb-8">
+                    <Tabs defaultValue="signin" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 bg-slate-800">
+                            <TabsTrigger value="signin">Sign In</TabsTrigger>
+                            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="signin" className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="signin-email">Email</Label>
+                                <Input
+                                    id="signin-email"
+                                    type="email"
+                                    placeholder="m@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="border-slate-700 bg-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="signin-password">
+                                    Password
+                                </Label>
+                                <Input
+                                    id="signin-password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    className="border-slate-700 bg-slate-800"
+                                />
+                            </div>
+                            <Button
+                                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                onClick={handleEmailSignIn}
+                                disabled={isLoading}
+                            >
+                                {isLoading && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Sign In
+                            </Button>
+                        </TabsContent>
+
+                        <TabsContent value="signup" className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="signup-name">Name</Label>
+                                <Input
+                                    id="signup-name"
+                                    type="text"
+                                    placeholder="John Doe"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="border-slate-700 bg-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="signup-email">Email</Label>
+                                <Input
+                                    id="signup-email"
+                                    type="email"
+                                    placeholder="m@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="border-slate-700 bg-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="signup-password">
+                                    Password
+                                </Label>
+                                <Input
+                                    id="signup-password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    className="border-slate-700 bg-slate-800"
+                                />
+                            </div>
+                            <Button
+                                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                onClick={handleEmailSignUp}
+                                disabled={isLoading}
+                            >
+                                {isLoading && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Create Account
+                            </Button>
+                        </TabsContent>
+                    </Tabs>
+
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-slate-700" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-slate-900 px-2 text-slate-400">
+                                Or continue with
+                            </span>
+                        </div>
+                    </div>
+
                     <Button
+                        variant="outline"
                         onClick={handleGoogleSignIn}
                         disabled={isLoading}
-                        className="h-12 w-full bg-white font-medium text-slate-900 hover:bg-slate-100 disabled:opacity-50"
+                        className="h-12 w-full border-slate-700 bg-transparent hover:bg-slate-800 hover:text-white"
                     >
                         {isLoading ? (
                             <Loader2 className="mr-2 size-4 animate-spin" />
@@ -76,7 +253,7 @@ export default function SignInPage() {
                                 ></path>
                             </svg>
                         )}
-                        {isLoading ? "Signing in..." : "Continue with Google"}
+                        Google
                     </Button>
                 </CardContent>
             </Card>

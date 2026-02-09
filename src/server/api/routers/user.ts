@@ -93,4 +93,20 @@ export const userRouter = createTRPCRouter({
 
             return deleted ?? null;
         }),
+
+    completeOnboarding: protectedProcedure
+        .input(z.object({ role: z.enum(["student", "teacher"]) }))
+        .mutation(async ({ ctx, input }) => {
+            const [updated] = await ctx.db
+                .update(user)
+                .set({
+                    role: input.role,
+                    onboardingCompleted: true,
+                    updatedAt: new Date(),
+                })
+                .where(eq(user.id, ctx.session.user.id))
+                .returning();
+
+            return updated ?? null;
+        }),
 });
