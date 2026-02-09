@@ -25,7 +25,11 @@ export default function RootLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
     return (
-        <html lang="en" className={cn(geist.variable, inter.variable)}>
+        <html
+            lang="en"
+            className={cn(geist.variable, inter.variable)}
+            suppressHydrationWarning
+        >
             <body>
                 <TRPCReactProvider>
                     <ThemeProvider
