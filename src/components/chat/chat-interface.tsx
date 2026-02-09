@@ -10,11 +10,15 @@ import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { Markdown } from "~/components/markdown";
 
+import { api } from "~/trpc/react";
+
 interface ChatInterfaceProps {
     noteId: string;
 }
 
 export function ChatInterface({ noteId }: ChatInterfaceProps) {
+    const { data: history } = api.message.listByNoteId.useQuery({ noteId });
+
     const transport = useMemo(
         () =>
             new DefaultChatTransport({
@@ -24,7 +28,7 @@ export function ChatInterface({ noteId }: ChatInterfaceProps) {
         [noteId]
     );
 
-    const { messages, status, sendMessage } = useChat({
+    const { messages, status, sendMessage, setMessages } = useChat({
         transport,
     });
 
@@ -32,6 +36,19 @@ export function ChatInterface({ noteId }: ChatInterfaceProps) {
     const isLoading = status === "streaming" || status === "submitted";
 
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (history && messages.length === 0) {
+            setMessages(
+                history.map((m) => ({
+                    id: m.id,
+                    role: m.role as "user" | "assistant" | "system",
+                    content: m.content,
+                    parts: [{ type: "text", text: m.content }],
+                }))
+            );
+        }
+    }, [history, setMessages, messages.length]);
 
     useEffect(() => {
         if (scrollRef.current) {

@@ -17,6 +17,16 @@ export const messageRouter = createTRPCRouter({
         return ctx.db.select().from(message);
     }),
 
+    listByNoteId: protectedProcedure
+        .input(z.object({ noteId: z.string().uuid() }))
+        .query(async ({ ctx, input }) => {
+            return ctx.db
+                .select()
+                .from(message)
+                .where(eq(message.noteId, input.noteId))
+                .orderBy(message.createdAt);
+        }),
+
     getById: protectedProcedure
         .input(z.object({ id: z.string() }))
         .query(async ({ ctx, input }) => {

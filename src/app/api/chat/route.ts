@@ -33,6 +33,23 @@ export async function POST(req: Request) {
         return new Response("Note not found", { status: 404 });
     }
 
+    // Save user message
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "user") {
+        const lastMessageContent = lastMessage.parts
+            .filter((p) => p.type === "text")
+            .map((p) => p.text)
+            .join("");
+
+        await caller.message.create({
+            id: lastMessage.id,
+            role: "user",
+            content: lastMessageContent,
+            noteId: noteId,
+            userId: context.session.user.id,
+        });
+    }
+
     const modelMessages = await convertToModelMessages(messages);
 
     const result = streamText({
@@ -50,6 +67,17 @@ Your goal is to help the student deeply understand the provided note content.
 ${note.textContent ?? "No text content available."}
 `,
         messages: modelMessages,
+        onFinish: async (event) => {
+            if (context.session?.user.id) {
+                await caller.message.create({
+                    id: crypto.randomUUID(),
+                    role: "assistant", // "assistant" is valid in messageRoleEnum
+                    content: event.text,
+                    noteId: noteId,
+                    userId: context.session.user.id,
+                });
+            }
+        },
     });
 
     return result.toUIMessageStreamResponse();
