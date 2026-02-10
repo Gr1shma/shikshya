@@ -56,7 +56,7 @@ export function CourseList() {
     }
 
     return (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => (
                 <CourseCard
                     key={course.id}
@@ -124,13 +124,13 @@ function CourseCard({
         <Card className="h-full border-slate-700/50 bg-slate-900/50 transition-all hover:border-indigo-500/50 hover:bg-slate-900/80">
             <CardHeader>
                 <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg text-white group-hover:text-indigo-400">
+                    <CardTitle className="text-lg font-semibold text-white group-hover:text-indigo-400">
                         {course.title}
                     </CardTitle>
                 </div>
             </CardHeader>
             <CardContent>
-                <p className="mb-4 line-clamp-2 text-sm text-slate-400">
+                <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
                     {course.description ?? "No description"}
                 </p>
                 <div className="flex items-center justify-between gap-4 text-xs text-slate-500">

@@ -13,7 +13,7 @@ export const DashboardHeader = () => {
                 Welcome, <span className="text-indigo-400">{userName}</span>
             </h1>
 
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="text-muted-foreground mt-1 text-sm">
                 Ready to learn something new today?
             </p>
         </header>

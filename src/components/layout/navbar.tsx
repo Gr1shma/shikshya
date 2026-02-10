@@ -20,7 +20,7 @@ import { UserAvatar } from "../user-avatar";
 import Image from "next/image";
 
 const navItems = [
-    { name: "Home", path: "/home", icon: HomeIcon },
+    { name: "Home", path: "/", icon: HomeIcon },
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Courses", path: "/course", icon: LibraryBig },
     { name: "Learn", path: "/learn", icon: BookOpen },
@@ -62,7 +62,7 @@ export default function Navbar() {
                     <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 p-2 pl-6 shadow-2xl shadow-indigo-500/10 backdrop-blur-md">
                         {/* Logo */}
                         <Link
-                            href="/home"
+                            href="/"
                             className="group flex items-center gap-3 select-none"
                         >
                             {/* Logo Icon */}
@@ -88,6 +88,11 @@ export default function Navbar() {
                                 <Link
                                     key={item.path}
                                     href={item.path}
+                                    aria-current={
+                                        pathname === item.path
+                                            ? "page"
+                                            : undefined
+                                    }
                                     className={cn(
                                         "relative rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                                         pathname === item.path
@@ -118,8 +123,8 @@ export default function Navbar() {
                         <div className="flex items-center gap-2">
                             <Link
                                 href="/leaderboard"
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-900 text-slate-300 transition-all hover:border-indigo-500/50 hover:text-white"
                                 aria-label="Leaderboard"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-900 text-slate-300 transition-all hover:border-indigo-500/50 hover:text-white"
                             >
                                 <Trophy className="h-5 w-5" />
                             </Link>
@@ -132,6 +137,7 @@ export default function Navbar() {
 
                             <button
                                 onClick={() => setIsOpen(!isOpen)}
+                                aria-label={isOpen ? "Close menu" : "Open menu"}
                                 className="p-2 text-slate-300 md:hidden"
                             >
                                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -163,6 +169,11 @@ export default function Navbar() {
                                         key={item.path}
                                         href={item.path}
                                         onClick={() => setIsOpen(false)}
+                                        aria-current={
+                                            pathname === item.path
+                                                ? "page"
+                                                : undefined
+                                        }
                                         className={cn(
                                             "flex items-center gap-3 rounded-xl p-4 transition-colors",
                                             pathname === item.path

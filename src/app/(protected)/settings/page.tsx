@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { User, Lock, Trash2, Settings as SettingsIcon } from "lucide-react";
-import AccountDeletion from "~/modules/settings/ui/accountDeletion";
-import PasswordReset from "~/modules/settings/ui/passwordChange";
-import PersonalSettings from "~/modules/settings/ui/personalDetails";
+import AccountDeletion from "~/modules/settings/ui/account-deletion";
+import PasswordReset from "~/modules/settings/ui/password-change";
+import PersonalSettings from "~/modules/settings/ui/personal-details";
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<
@@ -42,11 +42,11 @@ export default function SettingsPage() {
                             <div className="rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 p-2.5 shadow-lg shadow-indigo-500/20">
                                 <SettingsIcon className="h-6 w-6 text-white" />
                             </div>
-                            <h1 className="text-3xl font-bold text-white md:text-4xl">
+                            <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
                                 Settings
                             </h1>
                         </div>
-                        <p className="ml-1 text-sm text-slate-400">
+                        <p className="text-muted-foreground ml-1 text-sm">
                             Manage your account settings and preferences
                         </p>
                     </div>

@@ -11,10 +11,10 @@ export default function LeaderboardPage() {
     return (
         <div className="min-h-screen bg-[#020617] px-6 py-10 text-slate-200 md:px-10">
             <header className="mb-8">
-                <h1 className="text-3xl font-semibold text-white">
+                <h1 className="text-3xl font-bold tracking-tight text-white">
                     Leaderboard
                 </h1>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="text-muted-foreground mt-1 text-sm">
                     Top students this week based on points earned.
                 </p>
             </header>

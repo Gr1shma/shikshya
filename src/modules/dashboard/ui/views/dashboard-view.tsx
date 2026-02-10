@@ -23,8 +23,10 @@ export const DashboardView = () => {
                     </div>
                 </div>
 
-                <div className="w-full lg:w-[70%]">
-                    <PinnedCourses />
+                <div className="grid grid-cols-1 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
+                        <PinnedCourses />
+                    </div>
                 </div>
             </main>
         </div>

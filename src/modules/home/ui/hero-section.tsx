@@ -1,10 +1,16 @@
 "use client";
 
 import React from "react";
-import { Workflow } from "lucide-react";
+import { Workflow, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSession } from "~/lib/auth-client";
+import Link from "next/link";
+import Image from "next/image";
 
 const HeroSection = () => {
+    const { data: session } = useSession();
+    const isLoggedIn = !!session?.user;
+
     return (
         <div>
             {/* Top Navigation Bar with Branding */}
@@ -15,25 +21,46 @@ const HeroSection = () => {
                     transition={{ duration: 0.6 }}
                     className="mx-auto flex max-w-6xl items-center justify-between"
                 >
-                    <div className="text-2xl font-black tracking-tight">
-                        <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-indigo-400 bg-clip-text text-transparent">
-                            Shikshya
-                        </span>
+                    <div className="flex items-center gap-3">
+                        <div className="relative h-10 w-10 shrink-0">
+                            <Image
+                                src="/logo.png"
+                                alt="Shikshya logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
+                        <div className="text-2xl font-black tracking-tight text-white">
+                            ShikShya
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <a
-                            href="/auth?tab=login"
-                            className="text-sm font-semibold text-slate-300 transition-colors hover:text-white"
-                        >
-                            Sign In
-                        </a>
-                        <a
-                            href="/auth?tab=signup"
-                            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
-                        >
-                            Get Started
-                        </a>
+                        {isLoggedIn ? (
+                            <Link
+                                href="/dashboard"
+                                className="group flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
+                            >
+                                Go to Dashboard
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </Link>
+                        ) : (
+                            <>
+                                <a
+                                    href="/auth?tab=signin"
+                                    className="text-sm font-semibold text-slate-300 transition-colors hover:text-white"
+                                >
+                                    Sign In
+                                </a>
+                                <a
+                                    href="/auth?tab=signup"
+                                    className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
+                                >
+                                    Get Started
+                                </a>
+                            </>
+                        )}
                     </div>
                 </motion.div>
             </nav>

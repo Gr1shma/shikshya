@@ -67,7 +67,7 @@ export default function ProductDemo() {
                                 ,
                                 <br />
                                 but teachers re-upload them{" "}
-                                <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+                                <span className="text-red-400">
                                     every batch
                                 </span>
                             </h2>
@@ -134,11 +134,11 @@ export default function ProductDemo() {
                                         </h4>
                                     </div>
                                     <p className="text-sm leading-relaxed text-slate-300">
-                                        Get{" "}
+                                        Experience a{" "}
                                         <span className="font-semibold text-white">
-                                            interactive AI-assisted learning
+                                            frictionless workflow
                                         </span>{" "}
-                                        — summaries, flashcards, and quizzes
+                                        with built-in AI chat.
                                     </p>
                                 </div>
                             </div>
@@ -184,7 +184,7 @@ export default function ProductDemo() {
                                     <div className="flex items-center gap-2">
                                         <Bot className="size-5 text-indigo-400" />
                                         <span className="font-bold text-white">
-                                            Shikshya AI
+                                            ShikShya
                                         </span>
                                     </div>
                                     <div className="flex rounded-lg bg-slate-900 p-1">

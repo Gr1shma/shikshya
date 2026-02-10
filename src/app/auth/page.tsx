@@ -6,17 +6,11 @@ import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { authClient } from "~/lib/auth-client";
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-} from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import Image from "next/image";
 
 export default function AuthPage() {
     const router = useRouter();
@@ -139,24 +133,30 @@ export default function AuthPage() {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="w-full max-w-md"
             >
-                <Card className="relative overflow-hidden border-slate-800 bg-slate-900/60 shadow-2xl shadow-indigo-500/5 backdrop-blur-xl">
-                    {/* Card glow effect */}
-                    <div className="absolute -inset-1 -z-10 rounded-xl bg-gradient-to-r from-indigo-500/20 via-sky-500/20 to-indigo-500/20 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" />
-
-                    <CardHeader className="space-y-3 pb-6 text-center">
-                        <CardTitle className="flex flex-col items-center gap-2">
-                            <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-indigo-400 bg-clip-text text-4xl font-black tracking-tight text-transparent">
-                                Shikshya
+                <div className="relative overflow-hidden rounded-3xl bg-slate-900/40 p-8 backdrop-blur-xl transition-all duration-300">
+                    <div className="mb-8 flex flex-col items-center gap-4 text-center">
+                        <div className="flex items-center gap-3">
+                            <div className="relative h-10 w-10 shrink-0">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Shikshya logo"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                            <span className="text-2xl font-black tracking-tight text-white">
+                                ShikShya
                             </span>
-                        </CardTitle>
-                        <CardDescription className="text-base text-slate-400">
+                        </div>
+                        <p className="text-muted-foreground text-base">
                             {defaultTab === "signin"
-                                ? "Welcome back! Sign in to continue your learning journey."
-                                : "Join thousands transforming their study workflow."}
-                        </CardDescription>
-                    </CardHeader>
+                                ? "Sign in to your account"
+                                : "Create your account"}
+                        </p>
+                    </div>
 
-                    <CardContent className="pb-8">
+                    <div className="pb-4">
                         <Tabs defaultValue={defaultTab} className="w-full">
                             <TabsList className="grid w-full grid-cols-2 bg-slate-800/50 p-1">
                                 <TabsTrigger
@@ -192,7 +192,7 @@ export default function AuthPage() {
                                         onChange={(e) =>
                                             setEmail(e.target.value)
                                         }
-                                        className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="border-none bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -209,7 +209,7 @@ export default function AuthPage() {
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
-                                        className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="border-none bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
                                 <Button
@@ -245,7 +245,7 @@ export default function AuthPage() {
                                         onChange={(e) =>
                                             setName(e.target.value)
                                         }
-                                        className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="border-none bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -263,7 +263,7 @@ export default function AuthPage() {
                                         onChange={(e) =>
                                             setEmail(e.target.value)
                                         }
-                                        className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="border-none bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -280,7 +280,7 @@ export default function AuthPage() {
                                         onChange={(e) =>
                                             setPassword(e.target.value)
                                         }
-                                        className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="border-none bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
                                 <Button
@@ -300,10 +300,10 @@ export default function AuthPage() {
 
                         <div className="relative my-6">
                             <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-slate-700" />
+                                <span className="h-px w-full bg-slate-800" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-slate-900 px-2 text-slate-500">
+                                <span className="text-muted-foreground bg-slate-900 px-2">
                                     Or continue with
                                 </span>
                             </div>
@@ -313,7 +313,7 @@ export default function AuthPage() {
                             variant="outline"
                             onClick={handleGoogleSignIn}
                             disabled={isEmailLoading || isGoogleLoading}
-                            className="h-12 w-full border-slate-700 bg-slate-800/30 font-semibold text-white backdrop-blur-sm transition-all hover:enabled:scale-[1.02] hover:enabled:border-slate-600 hover:enabled:bg-slate-800/60 disabled:opacity-70"
+                            className="h-12 w-full border-none bg-slate-800/30 font-semibold text-white backdrop-blur-sm transition-all hover:enabled:scale-[1.02] hover:enabled:bg-slate-800/60 disabled:opacity-70"
                         >
                             {isGoogleLoading ? (
                                 <Loader2 className="mr-2 size-4 animate-spin" />
@@ -343,8 +343,8 @@ export default function AuthPage() {
                             )}
                             Continue with Google
                         </Button>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </motion.div>
         </div>
     );

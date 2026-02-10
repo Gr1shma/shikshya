@@ -18,9 +18,13 @@ export default async function CourseDetailPage({
 
     return (
         <HydrateClient>
-            <Suspense fallback={<CourseDetailSkeleton />}>
-                <CourseDetail courseId={courseId} />
-            </Suspense>
+            <div className="min-h-screen bg-[#020617] p-6 text-slate-200 md:p-10">
+                <div className="mx-auto max-w-7xl">
+                    <Suspense fallback={<CourseDetailSkeleton />}>
+                        <CourseDetail courseId={courseId} />
+                    </Suspense>
+                </div>
+            </div>
         </HydrateClient>
     );
 }

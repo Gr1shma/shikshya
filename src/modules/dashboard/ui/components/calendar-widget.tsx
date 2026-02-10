@@ -72,30 +72,30 @@ export default function CalendarWidget() {
 
                     {/* Quick Stats */}
                     <div className="mt-auto grid grid-cols-3 gap-3 pt-5">
-                        <div className="rounded-xl border border-slate-700/30 bg-slate-800/30 p-3 text-center">
+                        <div className="rounded-xl border border-slate-700/50 bg-slate-900/50 p-3 text-center">
                             <Flame className="mx-auto mb-1.5 h-4 w-4 text-orange-400" />
                             <div className="text-xl font-bold text-orange-400">
                                 {streak}
                             </div>
-                            <div className="mt-0.5 text-[10px] text-slate-400">
+                            <div className="text-muted-foreground mt-0.5 text-[10px]">
                                 Streak
                             </div>
                         </div>
-                        <div className="rounded-xl border border-slate-700/30 bg-slate-800/30 p-3 text-center">
+                        <div className="rounded-xl border border-slate-700/50 bg-slate-900/50 p-3 text-center">
                             <CalendarDays className="mx-auto mb-1.5 h-4 w-4 text-indigo-400" />
                             <div className="text-xl font-bold text-indigo-400">
                                 {new Date().getDate()}
                             </div>
-                            <div className="mt-0.5 text-[10px] text-slate-400">
+                            <div className="text-muted-foreground mt-0.5 text-[10px]">
                                 Today
                             </div>
                         </div>
-                        <div className="rounded-xl border border-slate-700/30 bg-slate-800/30 p-3 text-center">
-                            <Flame className="mx-auto mb-1.5 h-4 w-4 text-pink-400" />
-                            <div className="text-xl font-bold text-pink-400">
+                        <div className="rounded-xl border border-slate-700/50 bg-slate-900/50 p-3 text-center">
+                            <Flame className="mx-auto mb-1.5 h-4 w-4 text-indigo-400" />
+                            <div className="text-xl font-bold text-indigo-400">
                                 {highestStreak}
                             </div>
-                            <div className="mt-0.5 text-[10px] text-slate-400">
+                            <div className="text-muted-foreground mt-0.5 text-[10px]">
                                 Highest Streak
                             </div>
                         </div>

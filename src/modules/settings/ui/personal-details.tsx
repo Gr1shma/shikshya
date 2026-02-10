@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Mail, Camera, Save } from "lucide-react";
+import { User, Camera, Save } from "lucide-react";
 import { updateUser } from "~/lib/auth-client";
 
 interface PersonalSettingsProps {
