@@ -53,12 +53,12 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
         newPassword: string;
     }) => {
         console.log("Changing password");
-        return true; 
+        return true;
     };
 
     const handleDeleteAccount = async () => {
         console.log("Deleting account");
-        return true; 
+        return true;
     };
 
     const handleExportData = () => {
@@ -116,12 +116,18 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
                                                   : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
                                         }`}
                                     >
-                                        <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${isActive ? "text-white" : ""}`} />
+                                        <Icon
+                                            className={`mt-0.5 h-5 w-5 flex-shrink-0 ${isActive ? "text-white" : ""}`}
+                                        />
                                         <div className="min-w-0 flex-1">
-                                            <div className={`text-sm font-semibold ${isActive ? "text-white" : ""}`}>
+                                            <div
+                                                className={`text-sm font-semibold ${isActive ? "text-white" : ""}`}
+                                            >
                                                 {tab.label}
                                             </div>
-                                            <div className={`text-xs ${isActive ? "text-white/70" : "text-slate-500"}`}>
+                                            <div
+                                                className={`text-xs ${isActive ? "text-white/70" : "text-slate-500"}`}
+                                            >
                                                 {tab.description}
                                             </div>
                                         </div>
@@ -138,7 +144,9 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
                         )}
 
                         {activeTab === "password" && (
-                            <PasswordReset onPasswordChange={handlePasswordChange} />
+                            <PasswordReset
+                                onPasswordChange={handlePasswordChange}
+                            />
                         )}
 
                         {activeTab === "danger" && (

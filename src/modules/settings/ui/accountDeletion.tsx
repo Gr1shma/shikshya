@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-    Trash2,
-    AlertTriangle,
-    Shield,
-    X,
-} from "lucide-react";
+import { Trash2, AlertTriangle, Shield, X } from "lucide-react";
 
 interface AccountDeletionProps {
     onDelete?: () => Promise<boolean>;
@@ -242,7 +237,8 @@ export default function AccountDeletion({
                         <span className="font-medium text-slate-300">
                             Need help?
                         </span>{" "}
-                        If you&apos;re experiencing issues or have concerns, please{" "}
+                        If you&apos;re experiencing issues or have concerns,
+                        please{" "}
                         <a
                             href="#"
                             className="text-indigo-400 underline hover:text-indigo-300"

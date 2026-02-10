@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     X,
     LogOut,
-    User,
     Settings,
     ShieldCheck,
     Mail,

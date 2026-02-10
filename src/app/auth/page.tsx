@@ -110,7 +110,7 @@ export default function AuthPage() {
                 <CardHeader className="space-y-2 text-center">
                     <CardTitle className="flex flex-col items-center gap-1">
                         <span className="text-3xl font-bold tracking-tight text-indigo-400">
-                            Shik<span className="text-3xl">क्ष</span>ya
+                            ShikShya
                         </span>
                     </CardTitle>
                     <CardDescription className="text-slate-400">
