@@ -2,7 +2,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 export function CourseDetailSkeleton() {
     return (
-        <div className="space-y-8">
+        <div className="mx-auto space-y-8">
             {/* Header Skeleton */}
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">

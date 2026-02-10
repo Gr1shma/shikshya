@@ -127,12 +127,6 @@ function CourseCard({
                     <CardTitle className="text-lg text-white group-hover:text-indigo-400">
                         {course.title}
                     </CardTitle>
-                    {/* <Badge
-                        variant="secondary"
-                        className="bg-indigo-500/20 text-indigo-400"
-                    >
-                        {course.joinCode}
-                    </Badge> */}
                 </div>
             </CardHeader>
             <CardContent>

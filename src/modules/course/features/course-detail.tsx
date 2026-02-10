@@ -113,7 +113,7 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
 
     if (!course) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mx-auto flex flex-col items-center justify-center py-16 text-center">
                 <BookOpen className="mb-4 h-16 w-16 text-slate-600" />
                 <h3 className="text-xl font-semibold text-white">
                     Course not found

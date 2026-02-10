@@ -54,7 +54,7 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="fixed inset-x-0 top-0 z-50 w-full px-4 py-4">
+            <nav className="sticky inset-x-0 top-0 z-50 w-full px-4 py-4">
                 <div className="mx-auto max-w-7xl">
                     <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 p-2 pl-6 shadow-2xl shadow-indigo-500/10 backdrop-blur-md">
                         {/* Logo */}

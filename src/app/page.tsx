@@ -15,7 +15,7 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen bg-[#020617] font-sans text-slate-200 selection:bg-indigo-500/30">
             {/* Hero Section - Reduced Top Padding */}
-            <header className="relative overflow-hidden px-6 pt-16 pb-16 text-center md:px-12 md:pt-24">
+            <header className="relative overflow-hidden px-6 pb-16 text-center md:px-12 md:pt-24">
                 {/* Cinematic Background */}
                 <div className="absolute top-0 left-1/2 -z-10 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-[120px]" />
 
