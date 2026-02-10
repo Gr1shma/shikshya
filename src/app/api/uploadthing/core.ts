@@ -43,7 +43,15 @@ export const ourFileRouter = {
                     });
                 }
 
-                if (existingCourse.teacherId !== context.session?.user.id) {
+                const requester = await caller.user.getById({
+                    id: context.session?.user.id ?? "",
+                });
+
+                const isOwner =
+                    existingCourse.teacherId === context.session?.user.id;
+                const isAdmin = requester?.role === "admin";
+
+                if (!isOwner && !isAdmin) {
                     // eslint-disable-next-line @typescript-eslint/only-throw-error
                     throw new UploadThingError({
                         code: "FORBIDDEN",

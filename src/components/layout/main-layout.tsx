@@ -9,7 +9,7 @@ export default function MainLayout({
         <div className="min-h-screen bg-slate-950 text-slate-50 selection:bg-indigo-500/30">
             <Navbar />
 
-            <main className="container mt-12 mx-auto px-4 pb-12">
+            <main className="container mx-auto mt-12 px-4 pb-12">
                 {children}
             </main>
         </div>

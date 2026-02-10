@@ -28,27 +28,15 @@ export async function POST(req: Request) {
         return new Response("Note ID is required", { status: 400 });
     }
 
-    // Save user message + award points for meaningful chat
-    // Save user message + award points for meaningful chat
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "user") {
-        const lastMessageContent = lastMessage.parts
-            .filter((p) => p.type === "text")
-            .map((p) => p.text)
-            .join("");
-
-        // Fire and forget, or we could await if needed.
-        // For now, just calling them to resolve unused variable lint error.
-        void caller.chat.onStudentMessage({
-            noteId,
-            content: lastMessageContent,
-        });
-
-        void caller.activity.ping({
-            noteId,
-            eventType: "chat",
-        });
-    }
+    const shouldTrack =
+        lastMessage?.role === "user" && lastMessage.parts?.length;
+    const lastMessageContent = shouldTrack
+        ? lastMessage.parts
+              .filter((p) => p.type === "text")
+              .map((p) => p.text)
+              .join("")
+        : "";
 
     const modelMessages = await convertToModelMessages(messages);
 
@@ -74,6 +62,18 @@ ${textContent ?? "No text content available."}
                     role: "assistant",
                     content: event.text,
                     noteId: noteId,
+                });
+            }
+
+            if (shouldTrack && lastMessageContent) {
+                void caller.chat.onStudentMessage({
+                    noteId,
+                    content: lastMessageContent,
+                });
+
+                void caller.activity.ping({
+                    noteId,
+                    eventType: "chat",
                 });
             }
         },

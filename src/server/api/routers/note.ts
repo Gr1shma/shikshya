@@ -1,8 +1,15 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { note, noteCompletion, userStats } from "~/server/db/schema";
+import {
+    course,
+    note,
+    noteCompletion,
+    user,
+    userStats,
+} from "~/server/db/schema";
 import { ensureTodayCounters } from "~/server/api/routers/_gamification";
 
 export const noteRouter = createTRPCRouter({
@@ -43,6 +50,29 @@ export const noteRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.courseId),
+            });
+
+            if (!courseRow) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            if (
+                courseRow.teacherId !== requester.id &&
+                requester.role !== "admin"
+            ) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [created] = await ctx.db
                 .insert(note)
                 .values({
@@ -70,6 +100,31 @@ export const noteRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.query.note.findFirst({
+                where: eq(note.id, input.id),
+            });
+
+            if (!existing) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, existing.courseId),
+            });
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (
+                !courseRow ||
+                !requester ||
+                (courseRow.teacherId !== requester.id &&
+                    requester.role !== "admin")
+            ) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const updateData: {
                 title?: string;
                 fileUrl?: string;
@@ -99,6 +154,31 @@ export const noteRouter = createTRPCRouter({
     delete: protectedProcedure
         .input(z.object({ id: z.string().uuid() }))
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.query.note.findFirst({
+                where: eq(note.id, input.id),
+            });
+
+            if (!existing) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, existing.courseId),
+            });
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (
+                !courseRow ||
+                !requester ||
+                (courseRow.teacherId !== requester.id &&
+                    requester.role !== "admin")
+            ) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [deleted] = await ctx.db
                 .delete(note)
                 .where(eq(note.id, input.id))

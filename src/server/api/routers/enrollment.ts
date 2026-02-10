@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { course, enrollment, user } from "~/server/db/schema";
+import { course, enrollment, user, userStats } from "~/server/db/schema";
 
 export const enrollmentRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
@@ -16,6 +16,46 @@ export const enrollmentRouter = createTRPCRouter({
             .from(enrollment)
             .where(eq(enrollment.userId, ctx.session.user.id));
     }),
+
+    listByCourse: protectedProcedure
+        .input(z.object({ courseId: z.string().uuid() }))
+        .query(async ({ ctx, input }) => {
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.courseId),
+            });
+
+            if (!courseRow) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            const isTeacher = courseRow.teacherId === requester.id;
+            const isAdmin = requester.role === "admin";
+
+            if (!isTeacher && !isAdmin && requester.role !== "student") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            return ctx.db
+                .select({
+                    userId: user.id,
+                    name: user.name,
+                    image: user.image,
+                    totalPoints: sql<number>`coalesce(${userStats.totalPoints}, 0)`,
+                })
+                .from(enrollment)
+                .innerJoin(user, eq(enrollment.userId, user.id))
+                .leftJoin(userStats, eq(userStats.userId, user.id))
+                .where(eq(enrollment.courseId, input.courseId))
+                .orderBy(desc(userStats.totalPoints), user.name);
+        }),
 
     getById: protectedProcedure
         .input(
@@ -126,6 +166,123 @@ export const enrollmentRouter = createTRPCRouter({
             });
 
             if (dbUser?.role !== "student") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const [deleted] = await ctx.db
+                .delete(enrollment)
+                .where(
+                    and(
+                        eq(enrollment.userId, input.userId),
+                        eq(enrollment.courseId, input.courseId)
+                    )
+                )
+                .returning();
+
+            return deleted ?? null;
+        }),
+
+    addByEmail: protectedProcedure
+        .input(
+            z.object({
+                courseId: z.string().uuid(),
+                email: z.string().email(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.courseId),
+            });
+
+            if (!courseRow) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            const isTeacher = courseRow.teacherId === requester.id;
+            const isAdmin = requester.role === "admin";
+
+            if (!isTeacher && !isAdmin) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const target = await ctx.db.query.user.findFirst({
+                where: eq(user.email, input.email.toLowerCase()),
+            });
+
+            if (!target) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found",
+                });
+            }
+
+            if (target.role !== "student") {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Only students can be enrolled",
+                });
+            }
+
+            const existing = await ctx.db
+                .select()
+                .from(enrollment)
+                .where(
+                    and(
+                        eq(enrollment.userId, target.id),
+                        eq(enrollment.courseId, input.courseId)
+                    )
+                )
+                .limit(1);
+
+            if (existing[0]) {
+                return { enrolled: true, alreadyEnrolled: true };
+            }
+
+            await ctx.db.insert(enrollment).values({
+                userId: target.id,
+                courseId: input.courseId,
+                joinedAt: new Date(),
+            });
+
+            return { enrolled: true, alreadyEnrolled: false };
+        }),
+
+    removeByUser: protectedProcedure
+        .input(
+            z.object({
+                courseId: z.string().uuid(),
+                userId: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.courseId),
+            });
+
+            if (!courseRow) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            const isTeacher = courseRow.teacherId === requester.id;
+            const isAdmin = requester.role === "admin";
+
+            if (!isTeacher && !isAdmin) {
                 throw new TRPCError({ code: "FORBIDDEN" });
             }
 

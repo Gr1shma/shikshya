@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import { User, Mail, Camera, Save } from "lucide-react";
 import { updateUser } from "~/lib/auth-client";
 
-export default function PersonalSettings() {
+interface PersonalSettingsProps {
+    onSave?: (data: { name: string }) => void;
+}
+
+export default function PersonalSettings({ onSave }: PersonalSettingsProps) {
     const [formData, setFormData] = useState({
         name: "",
     });
@@ -23,6 +27,7 @@ export default function PersonalSettings() {
         try {
             if (formData.name) {
                 await updateUser({ name: formData.name });
+                onSave?.({ name: formData.name });
             }
         } catch (err) {
             console.error(err);

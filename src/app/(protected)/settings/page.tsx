@@ -8,8 +8,6 @@ import PersonalSettings from "~/modules/settings/ui/personalDetails";
 
 type PersonalDetails = {
     name: string;
-    email: string;
-    bio: string;
 };
 
 interface SettingsPageProps {
@@ -45,7 +43,6 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
     // FIX: Changed 'any' to 'PersonalDetails'
     const handleSavePersonalInfo = (data: PersonalDetails) => {
         console.log("Saving personal info:", data);
-        // Add your API call here
     };
 
     const handlePasswordChange = async (data: {

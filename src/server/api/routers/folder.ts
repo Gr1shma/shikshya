@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { eq, and, isNull } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { folder, note } from "~/server/db/schema";
+import { course, folder, note, user } from "~/server/db/schema";
 
 export const folderRouter = createTRPCRouter({
     // List all folders for a course (optionally filtered by parent)
@@ -105,6 +106,29 @@ export const folderRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.courseId),
+            });
+
+            if (!courseRow) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            if (
+                courseRow.teacherId !== requester.id &&
+                requester.role !== "admin"
+            ) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [created] = await ctx.db
                 .insert(folder)
                 .values({
@@ -126,6 +150,31 @@ export const folderRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.query.folder.findFirst({
+                where: eq(folder.id, input.id),
+            });
+
+            if (!existing) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, existing.courseId),
+            });
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (
+                !courseRow ||
+                !requester ||
+                (courseRow.teacherId !== requester.id &&
+                    requester.role !== "admin")
+            ) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const updateData: { name?: string; parentId?: string | null } = {};
 
             if (input.name !== undefined) {
@@ -147,6 +196,31 @@ export const folderRouter = createTRPCRouter({
     delete: protectedProcedure
         .input(z.object({ id: z.string().uuid() }))
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.query.folder.findFirst({
+                where: eq(folder.id, input.id),
+            });
+
+            if (!existing) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const courseRow = await ctx.db.query.course.findFirst({
+                where: eq(course.id, existing.courseId),
+            });
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (
+                !courseRow ||
+                !requester ||
+                (courseRow.teacherId !== requester.id &&
+                    requester.role !== "admin")
+            ) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [deleted] = await ctx.db
                 .delete(folder)
                 .where(eq(folder.id, input.id))

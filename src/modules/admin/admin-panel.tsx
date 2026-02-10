@@ -10,8 +10,6 @@ export default function AdminPanel() {
     const [email, setEmail] = useState("");
     const [searchedEmail, setSearchedEmail] = useState<string | null>(null);
 
-    type UserByEmail = RouterOutputs["user"]["getByEmail"];
-
     const userQuery = api.user.getByEmail.useQuery(
         { email: searchedEmail ?? "" },
         { enabled: !!searchedEmail }
@@ -55,7 +53,7 @@ export default function AdminPanel() {
     };
 
     const handleTeacherVerification = () => {
-        if (!user || user.role !== "teacher") return;
+        if (user?.role !== "teacher") return;
         verifyTeacher.mutate({
             id: user.id,
             verified: !user.teacherVerified,

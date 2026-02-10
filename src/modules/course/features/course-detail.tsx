@@ -11,6 +11,8 @@ import {
     Plus,
     X,
     Trash2,
+    MoreVertical,
+    Folder,
 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -34,9 +36,13 @@ import {
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { CreateFolderDialog } from "~/modules/course/features/create-folder-dialog";
+import { EditCourseDialog } from "~/modules/course/features/edit-course-dialog";
+import { RenameFolderDialog } from "~/modules/course/features/rename-folder-dialog";
+import { RenameNoteDialog } from "~/modules/course/features/rename-note-dialog";
+import { ConfirmDeleteDialog } from "~/modules/course/features/confirm-delete-dialog";
+import { EnrollmentPanel } from "~/modules/course/features/enrollment-panel";
 import { useUploadThing } from "~/lib/uploadthing";
 import { toast } from "sonner";
-import { Folder } from "lucide-react";
 
 interface CourseDetailProps {
     courseId: string;
@@ -45,6 +51,22 @@ interface CourseDetailProps {
 export function CourseDetail({ courseId }: CourseDetailProps) {
     const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+    const [renamingFolder, setRenamingFolder] = useState<{
+        id: string;
+        name: string;
+    } | null>(null);
+    const [renamingNote, setRenamingNote] = useState<{
+        id: string;
+        title: string;
+    } | null>(null);
+    const [deletingFolder, setDeletingFolder] = useState<{
+        id: string;
+        name: string;
+    } | null>(null);
+    const [deletingNote, setDeletingNote] = useState<{
+        id: string;
+        title: string;
+    } | null>(null);
 
     const [course] = api.course.getById.useSuspenseQuery({ id: courseId });
     // Fetch folder contents (folders + notes)
@@ -108,8 +130,36 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
 
     const user = session?.user as { id?: string; role?: string } | undefined;
     const isOwner = user?.id === course?.teacherId;
-    const isTeacherOrAdmin = user?.role === "teacher" || user?.role === "admin";
-    const canUpload = isOwner && isTeacherOrAdmin;
+    const isAdmin = user?.role === "admin";
+    const canManage = isOwner || isAdmin;
+
+    const deleteFolder = api.folder.delete.useMutation({
+        onSuccess: () => {
+            toast.success("Folder deleted");
+            setDeletingFolder(null);
+            void utils.folder.getContents.invalidate({
+                courseId,
+                folderId: currentFolderId,
+            });
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to delete folder");
+        },
+    });
+
+    const deleteNote = api.note.delete.useMutation({
+        onSuccess: () => {
+            toast.success("Note deleted");
+            setDeletingNote(null);
+            void utils.folder.getContents.invalidate({
+                courseId,
+                folderId: currentFolderId,
+            });
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to delete note");
+        },
+    });
 
     if (!course) {
         return (
@@ -133,187 +183,316 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
 
     return (
         <>
-            <div className="space-y-8">
+            <div className="flex flex-col gap-8 lg:flex-row">
                 {/* Header */}
-                <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-4">
-                            {currentFolderId ? (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() =>
-                                        setCurrentFolderId(
-                                            currentFolder?.parentId ?? null
-                                        )
-                                    }
-                                >
-                                    <ArrowLeft className="h-5 w-5" />
-                                </Button>
-                            ) : (
-                                <Link href="/course">
-                                    <Button variant="ghost" size="icon">
+                <div className="flex-1 space-y-8">
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-4">
+                                {currentFolderId ? (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                            setCurrentFolderId(
+                                                currentFolder?.parentId ?? null
+                                            )
+                                        }
+                                    >
                                         <ArrowLeft className="h-5 w-5" />
                                     </Button>
-                                </Link>
-                            )}
-                            <div>
-                                <h1 className="text-3xl font-bold tracking-tight text-white">
-                                    {currentFolderId
-                                        ? currentFolder?.name
-                                        : course.title}
-                                </h1>
-                                <p className="text-slate-400">
-                                    {currentFolderId
-                                        ? "Folder"
-                                        : (course.description ??
-                                          "No description")}
-                                </p>
+                                ) : (
+                                    <Link href="/course">
+                                        <Button variant="ghost" size="icon">
+                                            <ArrowLeft className="h-5 w-5" />
+                                        </Button>
+                                    </Link>
+                                )}
+                                <div>
+                                    <h1 className="text-3xl font-bold tracking-tight text-white">
+                                        {currentFolderId
+                                            ? currentFolder?.name
+                                            : course.title}
+                                    </h1>
+                                    <p className="text-slate-400">
+                                        {currentFolderId
+                                            ? "Folder"
+                                            : (course.description ??
+                                              "No description")}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Badge
-                            variant="secondary"
-                            className="bg-indigo-500/20 text-indigo-400"
-                        >
-                            Join Code: {course.joinCode}
-                        </Badge>
-                        {canUpload && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700">
-                                        <Plus className="h-4 w-4" />
-                                        Create
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-48"
+                        <div className="flex items-center gap-3">
+                            {canManage && (
+                                <Badge
+                                    variant="secondary"
+                                    className="bg-indigo-500/20 text-indigo-400"
                                 >
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            setIsCreateFolderOpen(true)
-                                        }
+                                    Join Code: {course.joinCode}
+                                </Badge>
+                            )}
+                            {canManage && (
+                                <EditCourseDialog
+                                    courseId={course.id}
+                                    title={course.title}
+                                    description={course.description}
+                                    trigger={
+                                        <Button variant="outline">
+                                            Edit Course
+                                        </Button>
+                                    }
+                                />
+                            )}
+                            {canManage && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700">
+                                            <Plus className="h-4 w-4" />
+                                            Create
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        className="w-48"
                                     >
-                                        <Folder className="mr-2 h-4 w-4" />
-                                        New Folder
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            setIsUploadModalOpen(true)
-                                        }
-                                    >
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Upload PDF
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        )}
-                    </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-white">
-                            Contents
-                        </h2>
-                        <span className="text-sm text-slate-400">
-                            {contents.folders.length} folder
-                            {contents.folders.length !== 1 ? "s" : ""},{" "}
-                            {contents.notes.length} note
-                            {contents.notes.length !== 1 ? "s" : ""}
-                        </span>
-                    </div>
-
-                    {contents.folders.length === 0 &&
-                    contents.notes.length === 0 ? (
-                        <Card className="border-dashed border-slate-700 bg-slate-900/30">
-                            <CardContent className="flex flex-col items-center justify-center py-12">
-                                <FileText className="mb-4 h-12 w-12 text-slate-600" />
-                                <p className="text-slate-400">No content yet</p>
-                                {canUpload && (
-                                    <div className="mt-4 flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10"
+                                        <DropdownMenuItem
                                             onClick={() =>
                                                 setIsCreateFolderOpen(true)
                                             }
                                         >
                                             <Folder className="mr-2 h-4 w-4" />
-                                            Create Folder
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10"
+                                            New Folder
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
                                             onClick={() =>
                                                 setIsUploadModalOpen(true)
                                             }
                                         >
                                             <Upload className="mr-2 h-4 w-4" />
                                             Upload PDF
-                                        </Button>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {/* Folders */}
-                            {contents.folders.map((folder) => (
-                                <div
-                                    key={folder.id}
-                                    className="group cursor-pointer"
-                                    onClick={() =>
-                                        setCurrentFolderId(folder.id)
-                                    }
-                                >
-                                    <Card className="h-full border-slate-700/50 bg-slate-900/50 transition-all hover:border-indigo-500/50 hover:bg-slate-900/80">
-                                        <CardHeader className="pb-3">
-                                            <CardTitle className="flex items-center gap-3 text-base text-white group-hover:text-indigo-400">
-                                                <Folder className="mt-0.5 h-5 w-5 shrink-0 fill-indigo-400/20 text-indigo-400" />
-                                                <span className="line-clamp-2">
-                                                    {folder.name}
-                                                </span>
-                                            </CardTitle>
-                                        </CardHeader>
-                                    </Card>
-                                </div>
-                            ))}
-
-                            {/* Notes */}
-                            {contents.notes.map((note) => (
-                                <Link
-                                    key={note.id}
-                                    href={`/course/${courseId}/note/${note.id}`}
-                                    className="group"
-                                >
-                                    <Card className="h-full border-slate-700/50 bg-slate-900/50 transition-all hover:border-indigo-500/50 hover:bg-slate-900/80">
-                                        <CardHeader className="pb-3">
-                                            <CardTitle className="flex items-start gap-3 text-base text-white group-hover:text-indigo-400">
-                                                <FileText className="mt-0.5 h-5 w-5 shrink-0 text-indigo-400" />
-                                                <span className="line-clamp-2">
-                                                    {note.title}
-                                                </span>
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="flex items-center gap-1 text-xs text-slate-500">
-                                                <Calendar className="h-3 w-3" />
-                                                <span>
-                                                    {new Date(
-                                                        note.createdAt
-                                                    ).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </Link>
-                            ))}
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
                         </div>
-                    )}
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold text-white">
+                                Contents
+                            </h2>
+                            <span className="text-sm text-slate-400">
+                                {contents.folders.length} folder
+                                {contents.folders.length !== 1 ? "s" : ""},{" "}
+                                {contents.notes.length} note
+                                {contents.notes.length !== 1 ? "s" : ""}
+                            </span>
+                        </div>
+
+                        {contents.folders.length === 0 &&
+                        contents.notes.length === 0 ? (
+                            <Card className="border-dashed border-slate-700 bg-slate-900/30">
+                                <CardContent className="flex flex-col items-center justify-center py-12">
+                                    <FileText className="mb-4 h-12 w-12 text-slate-600" />
+                                    <p className="text-slate-400">
+                                        No content yet
+                                    </p>
+                                    {canManage && (
+                                        <div className="mt-4 flex gap-2">
+                                            <Button
+                                                variant="outline"
+                                                className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10"
+                                                onClick={() =>
+                                                    setIsCreateFolderOpen(true)
+                                                }
+                                            >
+                                                <Folder className="mr-2 h-4 w-4" />
+                                                Create Folder
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10"
+                                                onClick={() =>
+                                                    setIsUploadModalOpen(true)
+                                                }
+                                            >
+                                                <Upload className="mr-2 h-4 w-4" />
+                                                Upload PDF
+                                            </Button>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                {/* Folders */}
+                                {contents.folders.map((folder) => (
+                                    <div
+                                        key={folder.id}
+                                        className="group cursor-pointer"
+                                        onClick={() =>
+                                            setCurrentFolderId(folder.id)
+                                        }
+                                    >
+                                        <Card className="h-full border-slate-700/50 bg-slate-900/50 transition-all hover:border-indigo-500/50 hover:bg-slate-900/80">
+                                            <CardHeader className="relative pb-3">
+                                                <CardTitle className="flex items-center gap-3 text-base text-white group-hover:text-indigo-400">
+                                                    <Folder className="mt-0.5 h-5 w-5 shrink-0 fill-indigo-400/20 text-indigo-400" />
+                                                    <span className="line-clamp-2">
+                                                        {folder.name}
+                                                    </span>
+                                                </CardTitle>
+                                                {canManage && (
+                                                    <div
+                                                        className="absolute top-3 right-3"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8"
+                                                                >
+                                                                    <MoreVertical className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem
+                                                                    onClick={() =>
+                                                                        setRenamingFolder(
+                                                                            {
+                                                                                id: folder.id,
+                                                                                name: folder.name,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Rename
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    className="text-red-400 focus:text-red-400"
+                                                                    onClick={() =>
+                                                                        setDeletingFolder(
+                                                                            {
+                                                                                id: folder.id,
+                                                                                name: folder.name,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Delete
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                )}
+                                            </CardHeader>
+                                        </Card>
+                                    </div>
+                                ))}
+
+                                {/* Notes */}
+                                {contents.notes.map((note) => (
+                                    <Link
+                                        key={note.id}
+                                        href={`/course/${courseId}/note/${note.id}`}
+                                        className="group"
+                                    >
+                                        <Card className="h-full border-slate-700/50 bg-slate-900/50 transition-all hover:border-indigo-500/50 hover:bg-slate-900/80">
+                                            <CardHeader className="relative pb-3">
+                                                <CardTitle className="flex items-start gap-3 text-base text-white group-hover:text-indigo-400">
+                                                    <FileText className="mt-0.5 h-5 w-5 shrink-0 text-indigo-400" />
+                                                    <span className="line-clamp-2">
+                                                        {note.title}
+                                                    </span>
+                                                </CardTitle>
+                                                {canManage && (
+                                                    <div
+                                                        className="absolute top-3 right-3"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8"
+                                                                >
+                                                                    <MoreVertical className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem
+                                                                    onClick={(
+                                                                        event
+                                                                    ) => {
+                                                                        event.preventDefault();
+                                                                        setRenamingNote(
+                                                                            {
+                                                                                id: note.id,
+                                                                                title: note.title,
+                                                                            }
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    Rename
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    className="text-red-400 focus:text-red-400"
+                                                                    onClick={(
+                                                                        event
+                                                                    ) => {
+                                                                        event.preventDefault();
+                                                                        setDeletingNote(
+                                                                            {
+                                                                                id: note.id,
+                                                                                title: note.title,
+                                                                            }
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    Delete
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                )}
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="flex items-center gap-1 text-xs text-slate-500">
+                                                    <Calendar className="h-3 w-3" />
+                                                    <span>
+                                                        {new Date(
+                                                            note.createdAt
+                                                        ).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="w-full lg:w-80">
+                    <EnrollmentPanel
+                        courseId={courseId}
+                        canManage={canManage}
+                    />
                 </div>
             </div>
 
@@ -412,6 +591,61 @@ export function CourseDetail({ courseId }: CourseDetailProps) {
                 parentId={currentFolderId}
                 open={isCreateFolderOpen}
                 onOpenChange={setIsCreateFolderOpen}
+            />
+
+            <RenameFolderDialog
+                courseId={courseId}
+                parentId={currentFolderId}
+                folder={renamingFolder}
+                open={!!renamingFolder}
+                onOpenChange={(open) => {
+                    if (!open) setRenamingFolder(null);
+                }}
+            />
+
+            <RenameNoteDialog
+                courseId={courseId}
+                parentId={currentFolderId}
+                note={renamingNote}
+                open={!!renamingNote}
+                onOpenChange={(open) => {
+                    if (!open) setRenamingNote(null);
+                }}
+            />
+
+            <ConfirmDeleteDialog
+                open={!!deletingFolder}
+                title="Delete folder?"
+                description={
+                    deletingFolder
+                        ? `This will permanently delete "${deletingFolder.name}".`
+                        : ""
+                }
+                isPending={deleteFolder.isPending}
+                onConfirm={() =>
+                    deletingFolder &&
+                    deleteFolder.mutate({ id: deletingFolder.id })
+                }
+                onOpenChange={(open) => {
+                    if (!open) setDeletingFolder(null);
+                }}
+            />
+
+            <ConfirmDeleteDialog
+                open={!!deletingNote}
+                title="Delete note?"
+                description={
+                    deletingNote
+                        ? `This will permanently delete "${deletingNote.title}".`
+                        : ""
+                }
+                isPending={deleteNote.isPending}
+                onConfirm={() =>
+                    deletingNote && deleteNote.mutate({ id: deletingNote.id })
+                }
+                onOpenChange={(open) => {
+                    if (!open) setDeletingNote(null);
+                }}
             />
         </>
     );

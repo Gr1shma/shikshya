@@ -79,17 +79,38 @@ export const courseRouter = createTRPCRouter({
                 title: z.string().min(1).optional(),
                 description: z.string().optional(),
                 joinCode: z.string().min(1).optional(),
-                teacherId: z.string().optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.id),
+            });
+
+            if (!existing) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            const isOwner = existing.teacherId === requester.id;
+            const isAdmin = requester.role === "admin";
+
+            if (!isOwner && !isAdmin) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [updated] = await ctx.db
                 .update(course)
                 .set({
                     title: input.title,
                     description: input.description,
                     joinCode: input.joinCode,
-                    teacherId: input.teacherId,
                 })
                 .where(eq(course.id, input.id))
                 .returning();
@@ -100,6 +121,29 @@ export const courseRouter = createTRPCRouter({
     delete: protectedProcedure
         .input(z.object({ id: z.string().uuid() }))
         .mutation(async ({ ctx, input }) => {
+            const existing = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.id),
+            });
+
+            if (!existing) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            const requester = await ctx.db.query.user.findFirst({
+                where: eq(user.id, ctx.session.user.id),
+            });
+
+            if (!requester) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+            }
+
+            const isOwner = existing.teacherId === requester.id;
+            const isAdmin = requester.role === "admin";
+
+            if (!isOwner && !isAdmin) {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
             const [deleted] = await ctx.db
                 .delete(course)
                 .where(eq(course.id, input.id))

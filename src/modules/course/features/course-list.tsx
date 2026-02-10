@@ -140,16 +140,14 @@ function CourseCard({
                             {new Date(course.createdAt).toLocaleDateString()}
                         </span>
                     </div>
-                    {course.teacherRole === "teacher" && (
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                            <span>{course.teacherName ?? "Teacher"}</span>
-                            <UserAvatar
-                                size="xs"
-                                name={course.teacherName ?? "Teacher"}
-                                imageUrl={course.teacherImage ?? ""}
-                            />
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <span>{course.teacherName ?? "Teacher"}</span>
+                        <UserAvatar
+                            size="xs"
+                            name={course.teacherName ?? "Teacher"}
+                            imageUrl={course.teacherImage ?? ""}
+                        />
+                    </div>
                 </div>
                 {(isStudent && isEnrolled) || (isStudent && !isEnrolled) ? (
                     <div className="mt-3 flex justify-end">
