@@ -1,7 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { cn } from "~/lib/utils";
+import { User } from "lucide-react";
 
 const avatarVariants = cva("", {
     variants: {
@@ -38,6 +39,9 @@ export function UserAvatar({
             onClick={onClick}
         >
             <AvatarImage src={imageUrl} alt={name} />
+            <AvatarFallback className="bg-slate-700">
+                <User className="h-1/2 w-1/2 text-slate-400" />
+            </AvatarFallback>
         </Avatar>
     );
 }

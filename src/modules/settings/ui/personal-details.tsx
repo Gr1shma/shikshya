@@ -14,7 +14,6 @@ export default function PersonalSettings({ onSave }: PersonalSettingsProps) {
     });
 
     const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (field: "name", value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -22,7 +21,6 @@ export default function PersonalSettings({ onSave }: PersonalSettingsProps) {
 
     const handleSave = async () => {
         setIsSaving(true);
-        setError(null);
 
         try {
             if (formData.name) {

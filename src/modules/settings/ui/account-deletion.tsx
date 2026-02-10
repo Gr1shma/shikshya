@@ -1,4 +1,4 @@
-"use client";
+"onExportDatause client";
 
 import React, { useState } from "react";
 import { Trash2, AlertTriangle, Shield, X } from "lucide-react";
@@ -8,10 +8,7 @@ interface AccountDeletionProps {
     onExportData?: () => void;
 }
 
-export default function AccountDeletion({
-    onDelete,
-    onExportData,
-}: AccountDeletionProps) {
+export default function AccountDeletion({ onDelete }: AccountDeletionProps) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [confirmText, setConfirmText] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
@@ -45,14 +42,10 @@ export default function AccountDeletion({
                 setIsDeleting(false);
             }
             // If successful, the user will be redirected, so no need to update state
-        } catch (err) {
+        } catch {
             setError("An error occurred. Please try again.");
             setIsDeleting(false);
         }
-    };
-
-    const handleExportData = () => {
-        onExportData?.();
     };
 
     const isConfirmValid = confirmText === "DELETE";

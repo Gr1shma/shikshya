@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +13,7 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { signOut } from "~/lib/auth-client";
+import { UserAvatar } from "~/components/user-avatar";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -80,12 +80,10 @@ export default function ProfileSidebar({
                             {/* User Info Card */}
                             <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-6 text-center shadow-inner">
                                 <div className="mx-auto mb-4 h-20 w-20 rounded-full border-2 border-indigo-500 p-1">
-                                    <Image
-                                        src={user.image}
-                                        alt="Avatar"
-                                        width={80}
-                                        height={80}
-                                        className="h-full w-full rounded-full bg-slate-800"
+                                    <UserAvatar
+                                        imageUrl={user.image}
+                                        name={user.name}
+                                        className="h-full w-full"
                                     />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">

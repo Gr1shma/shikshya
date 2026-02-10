@@ -109,7 +109,7 @@ export default function PasswordReset({
             } else {
                 setError("Current password is incorrect");
             }
-        } catch (err) {
+        } catch {
             setError("Failed to update password. Please try again.");
         } finally {
             setIsSubmitting(false);
