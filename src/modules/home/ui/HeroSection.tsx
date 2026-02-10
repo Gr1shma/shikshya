@@ -1,33 +1,73 @@
+"use client";
+
 import React from "react";
-import { Sparkles } from "lucide-react";
+import { Workflow } from "lucide-react";
+import { motion } from "framer-motion";
+
 const HeroSection = () => {
     return (
         <div>
+            {/* Top Navigation Bar with Branding */}
+            <nav className="relative px-6 py-6 md:px-12">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mx-auto flex max-w-6xl items-center justify-between"
+                >
+                    <div className="text-2xl font-black tracking-tight">
+                        <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-indigo-400 bg-clip-text text-transparent">
+                            Shikshya
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <a
+                            href="/auth?tab=login"
+                            className="text-sm font-semibold text-slate-300 transition-colors hover:text-white"
+                        >
+                            Sign In
+                        </a>
+                        <a
+                            href="/auth?tab=signup"
+                            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
+                        >
+                            Get Started
+                        </a>
+                    </div>
+                </motion.div>
+            </nav>
             <header className="relative overflow-hidden px-6 pb-16 text-center md:px-12 md:pt-24">
-                {/* Cinematic Background */}
-                <div className="absolute top-0 left-1/2 -z-10 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-[120px]" />
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                >
+                    <div className="mx-auto mb-6 flex max-w-fit items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/5 px-3 py-1.5">
+                        <Workflow className="size-3.5 text-indigo-400" />
+                        <span className="text-[9px] font-black tracking-[0.3em] text-indigo-400 uppercase">
+                            Workflow Revolution
+                        </span>
+                    </div>
 
-                <div className="mx-auto mb-6 flex max-w-fit items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/5 px-3 py-1.5">
-                    <Sparkles className="size-3.5 text-indigo-400" />
-                    <span className="text-[9px] font-black tracking-[0.3em] text-indigo-400 uppercase">
-                        Evolution of Study
-                    </span>
-                </div>
+                    {/* Problem-focused headline */}
+                    <h1 className="mx-auto max-w-4xl text-4xl font-black tracking-tight text-white md:text-6xl lg:text-7xl">
+                        Stop Re-Uploading. <br />
+                        <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-indigo-400 bg-clip-text text-transparent">
+                            Start Teaching Smarter.
+                        </span>
+                    </h1>
 
-                {/* Decreased Font Sizes */}
-                <h1 className="mx-auto max-w-4xl text-4xl font-black tracking-tight text-white md:text-6xl lg:text-7xl">
-                    Meet <span className="text-indigo-500">Shikshya.</span>{" "}
-                    <br />
-                    <span className="bg-gradient-to-r from-slate-200 to-slate-500 bg-clip-text text-transparent">
-                        The AI-Powered Study OS.
-                    </span>
-                </h1>
-
-                <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-slate-400 md:text-lg">
-                    A professional ecosystem for students. From automated
-                    streaks to AI-contextualized PDF learning, Shikshya turns
-                    raw information into structured knowledge.
-                </p>
+                    <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-400 md:text-lg">
+                        Transform repetitive PDF management into a streamlined
+                        workflow.{" "}
+                        <span className="text-slate-300">
+                            Upload once, accessible forever.
+                        </span>{" "}
+                        Empower students with AI-driven learning tools that make
+                        every document interactive.
+                    </p>
+                </motion.div>
             </header>
         </div>
     );
