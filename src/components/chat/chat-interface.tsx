@@ -18,6 +18,7 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ noteId }: ChatInterfaceProps) {
     const { data: history } = api.message.listByNoteId.useQuery({ noteId });
+    const utils = api.useUtils();
 
     const transport = useMemo(
         () =>
@@ -70,6 +71,7 @@ export function ChatInterface({ noteId }: ChatInterfaceProps) {
                 parts: [{ type: "text", text: input }],
             });
             setInput("");
+            await utils.stats.getMyStats.invalidate();
         } catch (error) {
             console.error("Error sending message:", error);
         }

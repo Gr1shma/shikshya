@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useSession } from "~/lib/auth-client";
+import { api } from "~/trpc/react";
 
 export const DashboardHeader = () => {
     const { data: session } = useSession();

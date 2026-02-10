@@ -4,7 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, LibraryBig, BookOpen, Menu, X } from "lucide-react";
+import {
+    LayoutDashboard,
+    LibraryBig,
+    BookOpen,
+    Menu,
+    X,
+    Trophy,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import ProfileSidebar from "./sidebar";
 import { useSession } from "~/lib/auth-client";
@@ -99,6 +106,13 @@ export default function Navbar() {
 
                         {/* Profile & Mobile Toggle */}
                         <div className="flex items-center gap-2">
+                            <Link
+                                href="/leaderboard"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-900 text-slate-300 transition-all hover:border-indigo-500/50 hover:text-white"
+                                aria-label="Leaderboard"
+                            >
+                                <Trophy className="h-5 w-5" />
+                            </Link>
                             <UserAvatar
                                 name={userData.name}
                                 imageUrl={userData.image}

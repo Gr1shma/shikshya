@@ -13,6 +13,8 @@ import {
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { ChatInterface } from "~/components/chat/chat-interface";
+import { useActivityPing } from "~/lib/gamification-client";
+import React from "react";
 
 interface StudyWorkspaceProps {
     noteId: string;
@@ -20,6 +22,28 @@ interface StudyWorkspaceProps {
 
 export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
     const [note] = api.note.getById.useSuspenseQuery({ id: noteId });
+    const { sendPing } = useActivityPing(noteId);
+
+    React.useEffect(() => {
+        sendPing("focus");
+        const handleVisibility = () => {
+            if (!document.hidden) {
+                sendPing("focus");
+            }
+        };
+        const handleScroll = () => sendPing("scroll");
+        const handleKeydown = () => sendPing("page_change");
+
+        document.addEventListener("visibilitychange", handleVisibility);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("keydown", handleKeydown);
+
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibility);
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("keydown", handleKeydown);
+        };
+    }, [sendPing]);
 
     if (!note) {
         return (

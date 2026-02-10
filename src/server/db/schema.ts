@@ -1,12 +1,15 @@
 import { relations } from "drizzle-orm";
 import {
     boolean,
+    date,
     index,
+    integer,
     pgEnum,
     pgTable,
     primaryKey,
     text,
     timestamp,
+    uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
 
@@ -163,6 +166,72 @@ export const message = pgTable("message", {
         .notNull(),
 });
 
+export const userStats = pgTable("user_stats", {
+    userId: text("user_id")
+        .primaryKey()
+        .references(() => user.id, { onDelete: "cascade" }),
+    totalPoints: integer("total_points").notNull().default(0),
+    currentStreak: integer("current_streak").notNull().default(0),
+    longestStreak: integer("longest_streak").notNull().default(0),
+    lastStudyDate: date("last_study_date", { mode: "string" }),
+    todayActiveMinutes: integer("today_active_minutes").notNull().default(0),
+    todayChatCount: integer("today_chat_count").notNull().default(0),
+    updatedAt: timestamp("updated_at")
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
+
+export const studySession = pgTable(
+    "study_sessions",
+    {
+        id: uuid("id").primaryKey().defaultRandom(),
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        noteId: uuid("note_id")
+            .notNull()
+            .references(() => note.id, { onDelete: "cascade" }),
+        dayDate: date("day_date", { mode: "string" }).notNull(),
+        activeSeconds: integer("active_seconds").notNull().default(0),
+        pointsAwarded: integer("points_awarded").notNull().default(0),
+        lastActivityAt: timestamp("last_activity_at"),
+        createdAt: timestamp("created_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+        updatedAt: timestamp("updated_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [
+        uniqueIndex("study_sessions_user_note_day_idx").on(
+            table.userId,
+            table.noteId,
+            table.dayDate
+        ),
+        index("study_sessions_user_day_idx").on(table.userId, table.dayDate),
+    ]
+);
+
+export const noteCompletion = pgTable(
+    "note_completion",
+    {
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        noteId: uuid("note_id")
+            .notNull()
+            .references(() => note.id, { onDelete: "cascade" }),
+        completedAt: timestamp("completed_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [
+        primaryKey({ columns: [table.userId, table.noteId] }),
+        index("note_completion_user_idx").on(table.userId),
+        index("note_completion_completed_at_idx").on(table.completedAt),
+    ]
+);
+
 export const userRelations = relations(user, ({ many }) => ({
     accounts: many(account),
     sessions: many(session),
@@ -233,3 +302,12 @@ export type NewMessage = typeof message.$inferInsert;
 
 export type Folder = typeof folder.$inferSelect;
 export type NewFolder = typeof folder.$inferInsert;
+
+export type UserStats = typeof userStats.$inferSelect;
+export type NewUserStats = typeof userStats.$inferInsert;
+
+export type StudySession = typeof studySession.$inferSelect;
+export type NewStudySession = typeof studySession.$inferInsert;
+
+export type NoteCompletion = typeof noteCompletion.$inferSelect;
+export type NewNoteCompletion = typeof noteCompletion.$inferInsert;

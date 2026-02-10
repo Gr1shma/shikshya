@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     X,
@@ -13,6 +14,7 @@ import {
     Mail,
     ChevronRight,
 } from "lucide-react";
+import { signOut } from "~/lib/auth-client";
 
 interface ProfileSidebarProps {
     isOpen: boolean;
@@ -30,6 +32,15 @@ export default function ProfileSidebar({
     onClose,
     user,
 }: ProfileSidebarProps) {
+    const router = useRouter();
+
+    const handleSignOut = async () => {
+        try {
+            await signOut();
+        } finally {
+            router.push("/");
+        }
+    };
     return (
         <AnimatePresence>
             {isOpen && (
@@ -134,13 +145,14 @@ export default function ProfileSidebar({
 
                             {/* Sign Out */}
                             <div className="mt-auto pt-6">
-                                <Link
-                                    href="/sign-out"
+                                <button
+                                    onClick={handleSignOut}
                                     className="flex w-full items-center justify-center gap-3 rounded-xl bg-red-500/10 p-4 font-semibold text-red-500 transition-all hover:bg-red-500 hover:text-white"
+                                    type="button"
                                 >
                                     <LogOut size={18} />
                                     Sign Out
-                                </Link>
+                                </button>
                             </div>
                         </div>
                     </motion.aside>

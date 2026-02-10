@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         return new Response("Note not found", { status: 404 });
     }
 
-    // Save user message
+    // Save user message + award points for meaningful chat
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "user") {
         const lastMessageContent = lastMessage.parts
@@ -41,12 +41,14 @@ export async function POST(req: Request) {
             .map((p) => p.text)
             .join("");
 
-        await caller.message.create({
-            id: lastMessage.id,
-            role: "user",
+        await caller.chat.onStudentMessage({
+            noteId,
             content: lastMessageContent,
-            noteId: noteId,
-            userId: context.session.user.id,
+        });
+
+        await caller.activity.ping({
+            noteId,
+            eventType: "chat",
         });
     }
 

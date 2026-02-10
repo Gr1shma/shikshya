@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { note } from "~/server/db/schema";
+import { note, noteCompletion, userStats } from "~/server/db/schema";
+import { ensureTodayCounters } from "~/server/api/routers/_gamification";
 
 export const noteRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
@@ -95,5 +96,47 @@ export const noteRouter = createTRPCRouter({
                 .returning();
 
             return deleted ?? null;
+        }),
+
+    markCompleted: protectedProcedure
+        .input(z.object({ noteId: z.string().uuid() }))
+        .mutation(async ({ ctx, input }) => {
+            const now = new Date();
+            const userId = ctx.session.user.id;
+
+            return ctx.db.transaction(async (tx) => {
+                await ensureTodayCounters({ db: tx }, userId, now);
+
+                const existing = await tx
+                    .select()
+                    .from(noteCompletion)
+                    .where(
+                        and(
+                            eq(noteCompletion.userId, userId),
+                            eq(noteCompletion.noteId, input.noteId)
+                        )
+                    )
+                    .limit(1);
+
+                if (existing[0]) {
+                    return { newlyCompleted: false, pointsAwarded: 0 };
+                }
+
+                await tx.insert(noteCompletion).values({
+                    userId,
+                    noteId: input.noteId,
+                    completedAt: now,
+                });
+
+                await tx
+                    .update(userStats)
+                    .set({
+                        totalPoints: sql`${userStats.totalPoints} + 50`,
+                        updatedAt: now,
+                    })
+                    .where(eq(userStats.userId, userId));
+
+                return { newlyCompleted: true, pointsAwarded: 50 };
+            });
         }),
 });

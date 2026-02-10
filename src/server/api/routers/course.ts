@@ -7,7 +7,20 @@ import { course, user } from "~/server/db/schema";
 
 export const courseRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
-        return ctx.db.select().from(course);
+        return ctx.db
+            .select({
+                id: course.id,
+                title: course.title,
+                description: course.description,
+                joinCode: course.joinCode,
+                teacherId: course.teacherId,
+                createdAt: course.createdAt,
+                teacherName: user.name,
+                teacherImage: user.image,
+                teacherRole: user.role,
+            })
+            .from(course)
+            .leftJoin(user, eq(course.teacherId, user.id));
     }),
 
     getById: protectedProcedure

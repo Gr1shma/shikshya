@@ -3,11 +3,18 @@ import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { enrollment, user } from "~/server/db/schema";
+import { course, enrollment, user } from "~/server/db/schema";
 
 export const enrollmentRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
         return ctx.db.select().from(enrollment);
+    }),
+
+    listMine: protectedProcedure.query(({ ctx }) => {
+        return ctx.db
+            .select()
+            .from(enrollment)
+            .where(eq(enrollment.userId, ctx.session.user.id));
     }),
 
     getById: protectedProcedure
@@ -133,5 +140,62 @@ export const enrollmentRouter = createTRPCRouter({
                 .returning();
 
             return deleted ?? null;
+        }),
+
+    joinWithCode: protectedProcedure
+        .input(
+            z.object({
+                courseId: z.string().uuid(),
+                joinCode: z.string().min(1),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+
+            const dbUser = await ctx.db.query.user.findFirst({
+                where: eq(user.id, userId),
+            });
+
+            if (dbUser?.role !== "student") {
+                throw new TRPCError({ code: "FORBIDDEN" });
+            }
+
+            const dbCourse = await ctx.db.query.course.findFirst({
+                where: eq(course.id, input.courseId),
+            });
+
+            if (!dbCourse) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            if (dbCourse.joinCode !== input.joinCode.trim().toUpperCase()) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Wrong join code",
+                });
+            }
+
+            const existing = await ctx.db
+                .select()
+                .from(enrollment)
+                .where(
+                    and(
+                        eq(enrollment.userId, userId),
+                        eq(enrollment.courseId, input.courseId)
+                    )
+                )
+                .limit(1);
+
+            if (existing[0]) {
+                return { enrolled: true, alreadyEnrolled: true };
+            }
+
+            await ctx.db.insert(enrollment).values({
+                userId,
+                courseId: input.courseId,
+                joinedAt: new Date(),
+            });
+
+            return { enrolled: true, alreadyEnrolled: false };
         }),
 });
