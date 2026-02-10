@@ -11,6 +11,11 @@ import {
     Bot,
     Sparkles,
 } from "lucide-react";
+import {
+    ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup,
+} from "~/components/ui/resizable";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { ChatInterface } from "~/components/chat/chat-interface";
@@ -93,88 +98,96 @@ export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
     return (
         <div className="flex h-[calc(100vh-8rem)] flex-col">
             {/* Split View */}
-            <div className="flex flex-1 gap-6 overflow-hidden">
-                {/* LEFT: AI Chatbot Section */}
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex w-1/2 flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/50 shadow-xl backdrop-blur-md"
-                >
-                    {/* Chat Header */}
-                    <div className="flex items-center justify-between border-b border-white/5 bg-slate-950/30 p-5">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-indigo-500/20 p-2 text-indigo-400">
-                                <Bot size={20} />
+            <ResizablePanelGroup
+                orientation="horizontal"
+                className="flex-1 gap-2 overflow-hidden"
+            >
+                <ResizablePanel defaultSize={50} minSize={20}>
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/50 shadow-xl backdrop-blur-md"
+                    >
+                        {/* Chat Header */}
+                        <div className="flex items-center justify-between border-b border-white/5 bg-slate-950/30 p-3">
+                            <div className="flex items-center gap-2">
+                                <span className="text-indigo-400">
+                                    <Bot size={18} />
+                                </span>
+                                <div>
+                                    <h2 className="text-sm leading-none font-semibold text-slate-100">
+                                        Shiksha AI
+                                    </h2>
+                                    <p className="mt-0.5 flex items-center gap-1 text-[10px] text-indigo-400/80">
+                                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                                        Online
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 className="font-bold text-slate-100">
-                                    Shiksha AI
-                                </h2>
-                                <p className="flex items-center gap-1 text-xs text-indigo-400/80">
-                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                                    Online &amp; Ready
-                                </p>
-                            </div>
+                            <Sparkles className="h-4 w-4 text-indigo-500/70" />
                         </div>
-                        <Sparkles className="h-5 w-5 text-indigo-500" />
-                    </div>
 
-                    {/* Chat Interface */}
-                    <div className="flex flex-1 flex-col overflow-hidden">
-                        <ChatInterface
-                            noteId={noteId}
-                            textContent={note.textContent ?? undefined}
-                        />
-                    </div>
-                </motion.div>
+                        {/* Chat Interface */}
+                        <div className="flex flex-1 flex-col overflow-hidden">
+                            <ChatInterface
+                                noteId={noteId}
+                                textContent={note.textContent ?? undefined}
+                            />
+                        </div>
+                    </motion.div>
+                </ResizablePanel>
+
+                <ResizableHandle withHandle />
 
                 {/* RIGHT: PDF Viewer Section */}
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex w-1/2 flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40 shadow-xl backdrop-blur-sm"
-                >
-                    {/* PDF Header */}
-                    <div className="flex items-center justify-between border-b border-white/5 bg-slate-900/30 p-4">
-                        <div className="flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-rose-500" />
-                            <span className="max-w-[250px] truncate text-sm font-medium text-slate-300">
-                                {note.title}
-                            </span>
+                <ResizablePanel defaultSize={50} minSize={20}>
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40 shadow-xl backdrop-blur-sm"
+                    >
+                        {/* PDF Header */}
+                        <div className="flex items-center justify-between border-b border-white/5 bg-slate-900/30 p-3">
+                            <div className="flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-rose-500" />
+                                <span className="max-w-64 truncate text-sm font-medium text-slate-300">
+                                    {note.title}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                {note.fileUrl && (
+                                    <a
+                                        href={note.fileUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5"
+                                    >
+                                        <Download size={18} />
+                                    </a>
+                                )}
+                                {note.fileUrl && (
+                                    <a
+                                        href={note.fileUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5"
+                                    >
+                                        <Maximize2 size={18} />
+                                    </a>
+                                )}
+                            </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                            {note.fileUrl && (
-                                <a
-                                    href={note.fileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5"
-                                >
-                                    <Download size={18} />
-                                </a>
-                            )}
-                            {note.fileUrl && (
-                                <a
-                                    href={note.fileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5"
-                                >
-                                    <Maximize2 size={18} />
-                                </a>
-                            )}
-                        </div>
-                    </div>
 
-                    {/* PDF Content Area */}
-                    <div className="flex-1 overflow-hidden bg-slate-800/20">
-                        <LazyPdfViewer
-                            fileUrl={note.fileUrl ?? null}
-                            title={note.title}
-                        />
-                    </div>
-                </motion.div>
-            </div>
+                        {/* PDF Content Area */}
+                        <div className="flex-1 overflow-hidden bg-slate-800/20">
+                            <LazyPdfViewer
+                                fileUrl={note.fileUrl ?? null}
+                                title={note.title}
+                            />
+                        </div>
+                    </motion.div>
+                </ResizablePanel>
+            </ResizablePanelGroup>
         </div>
     );
 }

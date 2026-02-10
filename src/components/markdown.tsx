@@ -3,6 +3,9 @@ import Link from "next/link";
 import React, { type ReactNode, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import remarkDirective from "remark-directive";
 import { CodeBlock } from "./code-block";
 import { visit } from "unist-util-visit";
@@ -218,7 +221,13 @@ const NonMemoizedMarkdown = ({ children }: MarkdownProps) => {
 
     return (
         <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkDirective, remarkThinkBlock]}
+            remarkPlugins={[
+                remarkGfm,
+                remarkMath,
+                remarkDirective,
+                remarkThinkBlock,
+            ]}
+            rehypePlugins={[rehypeKatex]}
             components={components}
         >
             {processContent(children)}

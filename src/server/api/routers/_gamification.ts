@@ -1,25 +1,38 @@
-import { eq } from "drizzle-orm";
-import type { PgDatabase } from "drizzle-orm/pg-core";
+import { eq, type ExtractTablesWithRelations } from "drizzle-orm";
+import type { PgTransaction, PgDatabase } from "drizzle-orm/pg-core";
+import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 
-import type { db } from "~/server/db";
-import { userStats } from "~/server/db/schema";
+import * as schema from "~/server/db/schema";
 import { getKathmanduDateString } from "~/server/lib/gamification";
 
+type DB = PgDatabase<
+    PostgresJsQueryResultHKT,
+    typeof schema,
+    ExtractTablesWithRelations<typeof schema>
+>;
+type TX = PgTransaction<
+    PostgresJsQueryResultHKT,
+    typeof schema,
+    ExtractTablesWithRelations<typeof schema>
+>;
+
+export type DatabaseOrTransaction = DB | TX;
+
 export const ensureUserStats = async (
-    ctx: { db: PgDatabase<any, any, any> },
+    ctx: { db: DatabaseOrTransaction },
     userId: string,
     now: Date
 ) => {
     const existing = await ctx.db
         .select()
-        .from(userStats)
-        .where(eq(userStats.userId, userId))
+        .from(schema.userStats)
+        .where(eq(schema.userStats.userId, userId))
         .limit(1);
 
     if (existing[0]) return existing[0];
 
     const [created] = await ctx.db
-        .insert(userStats)
+        .insert(schema.userStats)
         .values({ userId, updatedAt: now })
         .returning();
 
@@ -27,7 +40,7 @@ export const ensureUserStats = async (
 };
 
 export const ensureTodayCounters = async (
-    ctx: { db: PgDatabase<any, any, any> },
+    ctx: { db: DatabaseOrTransaction },
     userId: string,
     now: Date
 ) => {
@@ -38,13 +51,13 @@ export const ensureTodayCounters = async (
     if (today === lastUpdated) return stats;
 
     const [updated] = await ctx.db
-        .update(userStats)
+        .update(schema.userStats)
         .set({
             todayActiveMinutes: 0,
             todayChatCount: 0,
             updatedAt: now,
         })
-        .where(eq(userStats.userId, userId))
+        .where(eq(schema.userStats.userId, userId))
         .returning();
 
     return updated!;

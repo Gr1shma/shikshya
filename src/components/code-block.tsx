@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 
 interface CodeComponentProps {
     children: ReactNode;
@@ -24,14 +24,9 @@ type MarkdownSize = "default" | "small";
 const MarkdownSizeContext = createContext<MarkdownSize>("default");
 
 function Codebar({ lang = "plain", codeString }: CodebarProps) {
-    const { toast } = useToast();
-
     const onCopy = () => {
         void navigator.clipboard.writeText(codeString);
-        toast({
-            description: "Code copied to clipboard",
-            duration: 2000,
-        });
+        toast("Code copied to clipboard");
     };
 
     return (
@@ -65,7 +60,7 @@ export function CodeBlock({
                 <Codebar lang={lang} codeString={children as string} />
                 <ShikiHighlighter
                     language={lang}
-                    theme={"material-theme-darker"}
+                    theme={"tokyo-night"}
                     className={cn(
                         "font-mono text-sm",
                         "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/30",
