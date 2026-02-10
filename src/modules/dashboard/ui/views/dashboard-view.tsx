@@ -15,23 +15,18 @@ export const DashboardView = () => {
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="lg:col-span-2">
                         <StreakCard />
+                        <div className="w-full">
+                            <MiniTodo />
+                        </div>
                     </div>
                     <div className="lg:col-span-1">
                         <CalendarWidget />
                     </div>
                 </div>
 
-                {/* Bottom Row: 30/70 Split for Todo and Pinned Courses */}
-                <div className="flex flex-col gap-8 lg:flex-row">
-                    {/* Left: Mini Todo (30%) */}
-                    <div className="w-full lg:w-[30%]">
-                        <MiniTodo />
-                    </div>
-
-                    {/* Right: Pinned Courses (70%) */}
-                    <div className="w-full lg:w-[70%]">
-                        <PinnedCourses />
-                    </div>
+                {/* Right: Pinned Courses (70%) */}
+                <div className="w-full lg:w-[70%]">
+                    <PinnedCourses />
                 </div>
             </main>
         </div>

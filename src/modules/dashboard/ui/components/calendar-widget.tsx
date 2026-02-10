@@ -120,7 +120,7 @@ export default function CalendarWidget() {
                             </div>
                         </div>
                         <div className="rounded-xl border border-slate-700/30 bg-slate-800/30 p-3 text-center">
-                            <Flame className="mx-auto mb-1.5 h-4 w-4 text-orange-400" />
+                            <Flame className="mx-auto mb-1.5 h-4 w-4 text-pink-400" />
                             <div className="text-xl font-bold text-pink-400">
                                 {highestStreak}
                             </div>

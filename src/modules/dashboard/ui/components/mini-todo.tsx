@@ -76,7 +76,7 @@ export const MiniTodo = () => {
     if (!isMounted) return null;
 
     return (
-        <section className="w-full space-y-4">
+        <section className="mt-10 w-full space-y-4">
             <div className="flex items-center gap-2 px-1">
                 <ListTodo className="size-4 text-indigo-400" />
                 <h2 className="text-[11px] font-black tracking-[0.2em] text-slate-200 uppercase">
@@ -84,7 +84,7 @@ export const MiniTodo = () => {
                 </h2>
             </div>
 
-            <div className="rounded-2xl border-2 border-[#24283b] bg-[#16161e]/60 p-5 backdrop-blur-xl">
+            <div className="rounded-2xl border-2 border-indigo-500/50 bg-[#16161e]/60 p-5 backdrop-blur-xl">
                 <div className="relative mb-6 flex gap-2">
                     <input
                         type="text"
@@ -92,7 +92,7 @@ export const MiniTodo = () => {
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && addTodo()}
                         placeholder="Plan your next move..."
-                        className="flex-1 rounded-xl border border-[#24283b] bg-[#0a0a0c] px-4 py-3 text-xs text-white placeholder-slate-600 transition-all focus:border-indigo-500/50 focus:outline-none"
+                        className="flex-1 rounded-xl border border-[#24283b] bg-[#0a0a0c] px-4 py-3 text-base text-white placeholder-slate-600 transition-all focus:border-indigo-500/50 focus:outline-none"
                     />
                     <button
                         onClick={addTodo}

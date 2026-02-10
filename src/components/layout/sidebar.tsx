@@ -110,23 +110,7 @@ export default function ProfileSidebar({
                                     Account Settings
                                 </p>
                                 <Link
-                                    href="/profile/details"
-                                    className="flex w-full items-center justify-between rounded-xl p-4 text-slate-300 transition-all hover:bg-white/5 hover:text-white"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <User
-                                            size={18}
-                                            className="text-indigo-400"
-                                        />
-                                        <span>Personal Details</span>
-                                    </div>
-                                    <ChevronRight
-                                        size={16}
-                                        className="text-slate-600"
-                                    />
-                                </Link>
-                                <Link
-                                    href="/profile/settings"
+                                    href="/settings"
                                     className="flex w-full items-center justify-between rounded-xl p-4 text-slate-300 transition-all hover:bg-white/5 hover:text-white"
                                 >
                                     <div className="flex items-center gap-3">

@@ -16,6 +16,7 @@ import { cn } from "~/lib/utils";
 import ProfileSidebar from "./sidebar";
 import { useSession } from "~/lib/auth-client";
 import { UserAvatar } from "../user-avatar";
+import Image from "next/image";
 
 const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -60,15 +61,22 @@ export default function Navbar() {
                         {/* Logo */}
                         <Link
                             href="/dashboard"
-                            className="group flex items-center gap-2"
+                            className="group flex items-center gap-3 select-none"
                         >
-                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-500/30 transition-transform group-hover:rotate-12">
-                                <span className="text-lg font-bold text-white">
-                                    शि
-                                </span>
+                            {/* Logo Icon */}
+                            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden shadow-lg shadow-indigo-500/30 transition-all duration-300 group-hover:scale-105 group-hover:rotate-12">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Shikshya logo"
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                />
                             </div>
-                            <span className="text-xl font-bold tracking-tight text-white">
-                                Shik<span className="text-xl">क्ष</span>ya
+
+                            {/* Brand Text */}
+                            <span className="text-xl font-extrabold tracking-tight text-white">
+                                ShikShya
                             </span>
                         </Link>
 
