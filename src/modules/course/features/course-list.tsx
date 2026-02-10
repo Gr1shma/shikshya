@@ -38,7 +38,7 @@ export function CourseList() {
         { enabled: isStudent }
     );
     const enrolledCourseIds = new Set(
-        (myEnrollments ?? []).map((enrollment) => enrollment.courseId)
+        (myEnrollments ?? []).map((enrollment) => enrollment.id)
     );
 
     if (courses.length === 0) {

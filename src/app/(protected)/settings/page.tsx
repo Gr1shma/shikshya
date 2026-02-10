@@ -1,20 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Lock, Trash2, X, Settings as SettingsIcon } from "lucide-react";
+import { User, Lock, Trash2, Settings as SettingsIcon } from "lucide-react";
 import AccountDeletion from "~/modules/settings/ui/accountDeletion";
 import PasswordReset from "~/modules/settings/ui/passwordChange";
 import PersonalSettings from "~/modules/settings/ui/personalDetails";
 
-type PersonalDetails = {
-    name: string;
-};
-
-interface SettingsPageProps {
-    onClose?: () => void;
-}
-
-export default function SettingsPage({ onClose }: SettingsPageProps) {
+export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<
         "personal" | "password" | "danger"
     >("personal");
@@ -40,28 +32,6 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
         },
     ];
 
-    // FIX: Changed 'any' to 'PersonalDetails'
-    const handleSavePersonalInfo = (data: PersonalDetails) => {
-        console.log("Saving personal info:", data);
-    };
-
-    const handlePasswordChange = async (data: {
-        currentPassword: string;
-        newPassword: string;
-    }) => {
-        console.log("Changing password");
-        return true;
-    };
-
-    const handleDeleteAccount = async () => {
-        console.log("Deleting account");
-        return true;
-    };
-
-    const handleExportData = () => {
-        console.log("Exporting user data");
-    };
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950/30 to-slate-900 p-4 md:p-8">
             <div className="mx-auto max-w-6xl">
@@ -80,14 +50,6 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
                             Manage your account settings and preferences
                         </p>
                     </div>
-                    {onClose && (
-                        <button
-                            onClick={onClose}
-                            className="rounded-xl border border-slate-700/30 bg-slate-800/50 p-2.5 text-slate-300 transition-all hover:bg-slate-700/50 hover:text-white"
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
-                    )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
@@ -136,22 +98,11 @@ export default function SettingsPage({ onClose }: SettingsPageProps) {
 
                     {/* Main Content Area */}
                     <div className="lg:col-span-3">
-                        {activeTab === "personal" && (
-                            <PersonalSettings onSave={handleSavePersonalInfo} />
-                        )}
+                        {activeTab === "personal" && <PersonalSettings />}
 
-                        {activeTab === "password" && (
-                            <PasswordReset
-                                onPasswordChange={handlePasswordChange}
-                            />
-                        )}
+                        {activeTab === "password" && <PasswordReset />}
 
-                        {activeTab === "danger" && (
-                            <AccountDeletion
-                                onDelete={handleDeleteAccount}
-                                onExportData={handleExportData}
-                            />
-                        )}
+                        {activeTab === "danger" && <AccountDeletion />}
                     </div>
                 </div>
             </div>

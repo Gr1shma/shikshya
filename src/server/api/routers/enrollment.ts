@@ -12,9 +12,22 @@ export const enrollmentRouter = createTRPCRouter({
 
     listMine: protectedProcedure.query(({ ctx }) => {
         return ctx.db
-            .select()
+            .select({
+                id: course.id,
+                title: course.title,
+                description: course.description,
+                joinCode: course.joinCode,
+                teacherId: course.teacherId,
+                createdAt: course.createdAt,
+                teacherName: user.name,
+                teacherImage: user.image,
+                teacherRole: user.role,
+                joinedAt: enrollment.joinedAt,
+            })
             .from(enrollment)
-            .where(eq(enrollment.userId, ctx.session.user.id));
+            .where(eq(enrollment.userId, ctx.session.user.id))
+            .innerJoin(course, eq(enrollment.courseId, course.id))
+            .innerJoin(user, eq(course.teacherId, user.id));
     }),
 
     listByCourse: protectedProcedure

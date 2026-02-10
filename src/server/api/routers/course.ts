@@ -23,6 +23,24 @@ export const courseRouter = createTRPCRouter({
             .leftJoin(user, eq(course.teacherId, user.id));
     }),
 
+    listMine: protectedProcedure.query(async ({ ctx }) => {
+        return ctx.db
+            .select({
+                id: course.id,
+                title: course.title,
+                description: course.description,
+                joinCode: course.joinCode,
+                teacherId: course.teacherId,
+                createdAt: course.createdAt,
+                teacherName: user.name,
+                teacherImage: user.image,
+                teacherRole: user.role,
+            })
+            .from(course)
+            .leftJoin(user, eq(course.teacherId, user.id))
+            .where(eq(course.teacherId, ctx.session.user.id));
+    }),
+
     getById: protectedProcedure
         .input(z.object({ id: z.string().uuid() }))
         .query(async ({ ctx, input }) => {

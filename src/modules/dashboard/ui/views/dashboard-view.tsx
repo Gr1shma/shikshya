@@ -1,7 +1,7 @@
 import React from "react";
 import { DashboardHeader } from "../components/header";
 import { StreakCard } from "../components/streak-card";
-import { PinnedCourses } from "../components/pinned-courses";
+import { PinnedCourses } from "../components/courses";
 import CalendarWidget from "../components/calendar-widget";
 import { MiniTodo } from "../components/mini-todo";
 
@@ -11,7 +11,6 @@ export const DashboardView = () => {
             <DashboardHeader />
 
             <main className="max-w-7xl space-y-8">
-                {/* Top Row: Streak (Wide) and Calendar (Narrow) */}
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="lg:col-span-2">
                         <StreakCard />
@@ -24,7 +23,6 @@ export const DashboardView = () => {
                     </div>
                 </div>
 
-                {/* Right: Pinned Courses (70%) */}
                 <div className="w-full lg:w-[70%]">
                     <PinnedCourses />
                 </div>

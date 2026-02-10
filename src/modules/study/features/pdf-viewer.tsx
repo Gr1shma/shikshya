@@ -31,12 +31,27 @@ export function PdfViewer({ fileUrl, onExplain }: PdfViewerProps) {
     const [scale, setScale] = useState<number>(1);
     const [rotation, setRotation] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
+    const [containerWidth, setContainerWidth] = useState<number>(0);
     const containerRef = useRef<HTMLDivElement>(null);
     const [selection, setSelection] = useState<{
         text: string;
         x: number;
         y: number;
     } | null>(null);
+
+    // Calculate container width for auto-fit
+    useEffect(() => {
+        const updateWidth = () => {
+            if (containerRef.current) {
+                // Subtract padding (16px * 2 = 32px) for better fit
+                setContainerWidth(containerRef.current.offsetWidth - 32);
+            }
+        };
+
+        updateWidth();
+        window.addEventListener("resize", updateWidth);
+        return () => window.removeEventListener("resize", updateWidth);
+    }, []);
 
     useEffect(() => {
         setPageNumber(1);
@@ -259,10 +274,11 @@ export function PdfViewer({ fileUrl, onExplain }: PdfViewerProps) {
                                 <p>Failed to load PDF</p>
                             </div>
                         }
-                        className="flex justify-center"
+                        className="flex items-center justify-center"
                     >
                         <Page
                             pageNumber={pageNumber}
+                            width={containerWidth || undefined}
                             scale={scale}
                             rotate={rotation}
                             className="shadow-2xl"
