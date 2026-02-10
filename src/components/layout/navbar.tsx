@@ -65,21 +65,20 @@ export default function Navbar() {
                             href="/"
                             className="group flex items-center gap-3 select-none"
                         >
-                            {/* Logo Icon */}
-                            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden shadow-lg shadow-indigo-500/30 transition-all duration-300 group-hover:scale-105 group-hover:rotate-12">
-                                <Image
-                                    src="/logo.png"
-                                    alt="Shikshya logo"
-                                    fill
-                                    className="object-cover"
-                                    priority
-                                />
+                            <div className="flex items-center gap-3">
+                                <div className="relative h-10 w-10 shrink-0">
+                                    <Image
+                                        src="/logo.png"
+                                        alt="Shikshya logo"
+                                        fill
+                                        className="object-contain"
+                                        priority
+                                    />
+                                </div>
+                                <div className="text-2xl font-black tracking-tight text-white">
+                                    ShikShya
+                                </div>
                             </div>
-
-                            {/* Brand Text */}
-                            <span className="text-xl font-extrabold tracking-tight text-white">
-                                ShikShya
-                            </span>
                         </Link>
 
                         {/* Desktop Nav */}

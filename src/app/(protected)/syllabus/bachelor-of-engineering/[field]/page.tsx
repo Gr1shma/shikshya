@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { computerEngineeringSubjects } from "~/lib/syllabus-data";
 
 const semesterSlugs = [
     { title: "Semester 1", slug: "first-semester" },
@@ -43,6 +44,7 @@ export default async function EngineeringFieldPage({
 }) {
     const { field } = await params;
     const fieldTitle = formatFieldTitle(field);
+    const isComputerEngineering = field === "computer-engineering";
 
     return (
         <div className="px-6 py-10">
@@ -56,20 +58,28 @@ export default async function EngineeringFieldPage({
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {semesterSlugs.map((semester) => (
-                    <Link
-                        key={semester.slug}
-                        href={`/syllabus/bachelor-of-engineering/${field}/${semester.slug}`}
-                        className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-lg shadow-slate-950/40 transition hover:border-indigo-500/40"
-                    >
-                        <h2 className="text-lg font-semibold text-white">
-                            {semester.title}
-                        </h2>
-                        <p className="mt-2 text-xs text-slate-400">
-                            Subjects coming soon
-                        </p>
-                    </Link>
-                ))}
+                {semesterSlugs.map((semester) => {
+                    const subjects = isComputerEngineering
+                        ? (computerEngineeringSubjects[semester.slug] ?? [])
+                        : [];
+
+                    return (
+                        <Link
+                            key={semester.slug}
+                            href={`/syllabus/bachelor-of-engineering/${field}/${semester.slug}`}
+                            className="block rounded-2xl border border-slate-800 bg-slate-900/50 p-6 shadow-lg shadow-slate-950/40 transition hover:border-indigo-500/40"
+                        >
+                            <h2 className="text-lg font-semibold text-white">
+                                {semester.title}
+                            </h2>
+                            {subjects.length === 0 && (
+                                <p className="mt-2 text-xs text-slate-400">
+                                    Subjects coming soon
+                                </p>
+                            )}
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     );
