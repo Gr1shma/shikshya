@@ -21,22 +21,21 @@ export const MiniTodo = () => {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-    setIsMounted(true);
+        setIsMounted(true);
 
-    const saved = localStorage.getItem("mini_todo_tasks");
-    if (!saved) return;
+        const saved = localStorage.getItem("mini_todo_tasks");
+        if (!saved) return;
 
-    try {
-        const parsed: unknown = JSON.parse(saved);
+        try {
+            const parsed: unknown = JSON.parse(saved);
 
-        if (Array.isArray(parsed)) {
-            setTodos(parsed as Todo[]);
+            if (Array.isArray(parsed)) {
+                setTodos(parsed as Todo[]);
+            }
+        } catch (error) {
+            console.error("Failed to parse todos from localStorage", error);
         }
-    } catch (error) {
-        console.error("Failed to parse todos from localStorage", error);
-    }
-}, []);
-
+    }, []);
 
     useEffect(() => {
         if (isMounted)

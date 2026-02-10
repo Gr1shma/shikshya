@@ -15,8 +15,10 @@ const activityEventSchema = z.enum([
 
 const MAX_IDLE_SECONDS = 90;
 const MAX_ACTIVE_MINUTES_PER_DAY = 60;
-const STREAK_MIN_MINUTES = 10;
+const STREAK_MIN_MINUTES = 1;
 const STREAK_BONUS_POINTS = 5;
+const STREAK_BONUS_7_DAYS = 50;
+const STREAK_BONUS_30_DAYS = 250;
 
 export const activityRouter = createTRPCRouter({
     ping: protectedProcedure
@@ -141,7 +143,6 @@ export const activityRouter = createTRPCRouter({
                 }
 
                 const qualifiesForStreak =
-                    previousMinutes < STREAK_MIN_MINUTES &&
                     cappedMinutes >= STREAK_MIN_MINUTES &&
                     stats.lastStudyDate !== todayDate;
 
@@ -156,6 +157,12 @@ export const activityRouter = createTRPCRouter({
                     );
 
                     pointsAwarded += STREAK_BONUS_POINTS;
+                    if (nextStreak === 7) {
+                        pointsAwarded += STREAK_BONUS_7_DAYS;
+                    }
+                    if (nextStreak === 30) {
+                        pointsAwarded += STREAK_BONUS_30_DAYS;
+                    }
 
                     await tx
                         .update(userStats)
@@ -163,7 +170,7 @@ export const activityRouter = createTRPCRouter({
                             currentStreak: nextStreak,
                             longestStreak: nextLongest,
                             lastStudyDate: todayDate,
-                            totalPoints: sql`${userStats.totalPoints} + ${STREAK_BONUS_POINTS}`,
+                            totalPoints: sql`${userStats.totalPoints} + ${pointsAwarded}`,
                             updatedAt: now,
                         })
                         .where(eq(userStats.userId, userId));
