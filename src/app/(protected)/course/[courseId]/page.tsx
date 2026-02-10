@@ -11,9 +11,10 @@ export default async function CourseDetailPage({
     params,
 }: CourseDetailPageProps) {
     const { courseId } = await params;
-    void api.course.getById.prefetch({ id: courseId });
-    // Prefetch folder contents at root level
-    void api.folder.getContents.prefetch({ courseId, folderId: null });
+    await Promise.all([
+        api.course.getById.prefetch({ id: courseId }),
+        api.folder.getContents.prefetch({ courseId, folderId: null }),
+    ]);
 
     return (
         <HydrateClient>

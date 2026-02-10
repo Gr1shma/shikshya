@@ -14,9 +14,10 @@ import { api } from "~/trpc/react";
 
 interface ChatInterfaceProps {
     noteId: string;
+    textContent?: string;
 }
 
-export function ChatInterface({ noteId }: ChatInterfaceProps) {
+export function ChatInterface({ noteId, textContent }: ChatInterfaceProps) {
     const { data: history } = api.message.listByNoteId.useQuery({ noteId });
     const utils = api.useUtils();
 
@@ -24,9 +25,9 @@ export function ChatInterface({ noteId }: ChatInterfaceProps) {
         () =>
             new DefaultChatTransport({
                 api: "/api/chat",
-                body: { noteId },
+                body: { noteId, textContent },
             }),
-        [noteId]
+        [noteId, textContent]
     );
 
     const { messages, status, sendMessage, setMessages } = useChat({

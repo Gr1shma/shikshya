@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, BookOpen, Calendar } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
 import { UserAvatar } from "~/components/user-avatar";
 import {
     Dialog,
@@ -27,7 +26,6 @@ export function CourseList() {
     const router = useRouter();
     const { data: session } = useSession();
     const [courses] = api.course.list.useSuspenseQuery();
-    const { toast } = useToast();
 
     const { data: user } = api.user.getById.useQuery(
         { id: session?.user?.id ?? "" },

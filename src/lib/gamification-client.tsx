@@ -41,15 +41,9 @@ export const GamificationHud = ({ noteId }: { noteId: string }) => {
             >
                 Ping Activity
             </button>
-            <span>
-                Points: {statsQuery.data?.totalPoints ?? 0}
-            </span>
-            <span>
-                Today: {statsQuery.data?.todayActiveMinutes ?? 0} / 60
-            </span>
-            <span>
-                Streak: 🔥 {statsQuery.data?.currentStreak ?? 0}
-            </span>
+            <span>Points: {statsQuery.data?.totalPoints ?? 0}</span>
+            <span>Today: {statsQuery.data?.todayActiveMinutes ?? 0} / 60</span>
+            <span>Streak: 🔥 {statsQuery.data?.currentStreak ?? 0}</span>
             <button
                 className="rounded-lg border border-white/10 px-3 py-1"
                 onClick={() => markCompleted.mutate({ noteId })}

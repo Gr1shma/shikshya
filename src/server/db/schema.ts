@@ -27,25 +27,29 @@ export const messageRoleEnum = pgEnum("message_role", [
     "tool",
 ]);
 
-export const user = pgTable("user", {
-    id: text("id").primaryKey(),
-    name: text("name").notNull(),
-    email: text("email").notNull().unique(),
-    emailVerified: boolean("email_verified")
-        .$defaultFn(() => false)
-        .notNull(),
-    image: text("image"),
-    role: userRoleEnum("role").notNull().default("student"),
-    onboardingCompleted: boolean("onboarding_completed")
-        .$defaultFn(() => false)
-        .notNull(),
-    createdAt: timestamp("created_at")
-        .$defaultFn(() => new Date())
-        .notNull(),
-    updatedAt: timestamp("updated_at")
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
+export const user = pgTable(
+    "user",
+    {
+        id: text("id").primaryKey(),
+        name: text("name").notNull(),
+        email: text("email").notNull().unique(),
+        emailVerified: boolean("email_verified")
+            .$defaultFn(() => false)
+            .notNull(),
+        image: text("image"),
+        role: userRoleEnum("role").notNull().default("student"),
+        onboardingCompleted: boolean("onboarding_completed")
+            .$defaultFn(() => false)
+            .notNull(),
+        createdAt: timestamp("created_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+        updatedAt: timestamp("updated_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [index("user_email_idx").on(table.email)]
+);
 
 export const session = pgTable("session", {
     id: text("id").primaryKey(),
@@ -87,18 +91,22 @@ export const verification = pgTable("verification", {
     updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
 });
 
-export const course = pgTable("course", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    title: text("title").notNull(),
-    description: text("description"),
-    joinCode: text("join_code").notNull().unique(),
-    teacherId: text("teacher_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at")
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
+export const course = pgTable(
+    "course",
+    {
+        id: uuid("id").primaryKey().defaultRandom(),
+        title: text("title").notNull(),
+        description: text("description"),
+        joinCode: text("join_code").notNull().unique(),
+        teacherId: text("teacher_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        createdAt: timestamp("created_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [index("course_teacher_idx").on(table.teacherId)]
+);
 
 export const enrollment = pgTable(
     "enrollment",
@@ -135,36 +143,47 @@ export const folder = pgTable(
     ]
 );
 
-export const note = pgTable("note", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    title: text("title").notNull(),
-    fileUrl: text("file_url").notNull(),
-    textContent: text("text_content"),
-    courseId: uuid("course_id")
-        .notNull()
-        .references(() => course.id, { onDelete: "cascade" }),
-    folderId: uuid("folder_id").references(() => folder.id, {
-        onDelete: "set null",
-    }), // null = at course root level
-    createdAt: timestamp("created_at")
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
+export const note = pgTable(
+    "note",
+    {
+        id: uuid("id").primaryKey().defaultRandom(),
+        title: text("title").notNull(),
+        fileUrl: text("file_url").notNull(),
+        textContent: text("text_content"),
+        courseId: uuid("course_id")
+            .notNull()
+            .references(() => course.id, { onDelete: "cascade" }),
+        folderId: uuid("folder_id").references(() => folder.id, {
+            onDelete: "set null",
+        }), // null = at course root level
+        createdAt: timestamp("created_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [
+        index("note_course_idx").on(table.courseId),
+        index("note_folder_idx").on(table.folderId),
+    ]
+);
 
-export const message = pgTable("message", {
-    id: text("id").primaryKey(),
-    role: messageRoleEnum("role").notNull(),
-    content: text("content").notNull(),
-    noteId: uuid("note_id")
-        .notNull()
-        .references(() => note.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at")
-        .$defaultFn(() => new Date())
-        .notNull(),
-});
+export const message = pgTable(
+    "message",
+    {
+        id: text("id").primaryKey(),
+        role: messageRoleEnum("role").notNull(),
+        content: text("content").notNull(),
+        noteId: uuid("note_id")
+            .notNull()
+            .references(() => note.id, { onDelete: "cascade" }),
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        createdAt: timestamp("created_at")
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [index("message_note_user_idx").on(table.noteId, table.userId)]
+);
 
 export const userStats = pgTable("user_stats", {
     userId: text("user_id")

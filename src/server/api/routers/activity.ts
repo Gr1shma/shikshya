@@ -6,12 +6,7 @@ import { studySession, userStats } from "~/server/db/schema";
 import { ensureTodayCounters } from "~/server/api/routers/_gamification";
 import { addDays, getKathmanduDateString } from "~/server/lib/gamification";
 
-const activityEventSchema = z.enum([
-    "scroll",
-    "page_change",
-    "chat",
-    "focus",
-]);
+const activityEventSchema = z.enum(["scroll", "page_change", "chat", "focus"]);
 
 const MAX_IDLE_SECONDS = 90;
 const MAX_ACTIVE_MINUTES_PER_DAY = 60;
@@ -118,7 +113,10 @@ export const activityRouter = createTRPCRouter({
                     MAX_ACTIVE_MINUTES_PER_DAY
                 );
                 const previousMinutes = stats.todayActiveMinutes;
-                const deltaMinutes = Math.max(0, cappedMinutes - previousMinutes);
+                const deltaMinutes = Math.max(
+                    0,
+                    cappedMinutes - previousMinutes
+                );
 
                 let pointsAwarded = 0;
 

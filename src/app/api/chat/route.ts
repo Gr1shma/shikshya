@@ -8,10 +8,11 @@ import { createTRPCContext } from "~/server/api/trpc";
 interface ChatRequest {
     messages: UIMessage[];
     noteId: string;
+    textContent?: string;
 }
 
 export async function POST(req: Request) {
-    const { messages, noteId } = (await req.json()) as ChatRequest;
+    const { messages, noteId, textContent } = (await req.json()) as ChatRequest;
 
     const context = await createTRPCContext({
         headers: await headers(),
@@ -27,12 +28,7 @@ export async function POST(req: Request) {
         return new Response("Note ID is required", { status: 400 });
     }
 
-    const note = await caller.note.getById({ id: noteId });
-
-    if (!note) {
-        return new Response("Note not found", { status: 404 });
-    }
-
+    // Save user message + award points for meaningful chat
     // Save user message + award points for meaningful chat
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "user") {
@@ -41,12 +37,14 @@ export async function POST(req: Request) {
             .map((p) => p.text)
             .join("");
 
-        await caller.chat.onStudentMessage({
+        // Fire and forget, or we could await if needed.
+        // For now, just calling them to resolve unused variable lint error.
+        void caller.chat.onStudentMessage({
             noteId,
             content: lastMessageContent,
         });
 
-        await caller.activity.ping({
+        void caller.activity.ping({
             noteId,
             eventType: "chat",
         });
@@ -66,17 +64,16 @@ Your goal is to help the student deeply understand the provided note content.
 4. **Formatting:** Use Markdown to make your answers readable (bullet points, bold text for key terms, etc.). Keep explanations concise but thorough.
 
 ### NOTE CONTENT:
-${note.textContent ?? "No text content available."}
+${textContent ?? "No text content available."}
 `,
         messages: modelMessages,
         onFinish: async (event) => {
             if (context.session?.user.id) {
                 await caller.message.create({
                     id: crypto.randomUUID(),
-                    role: "assistant", // "assistant" is valid in messageRoleEnum
+                    role: "assistant",
                     content: event.text,
                     noteId: noteId,
-                    userId: context.session.user.id,
                 });
             }
         },

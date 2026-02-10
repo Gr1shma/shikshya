@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { message } from "~/server/db/schema";
@@ -14,7 +14,10 @@ const messageRoleSchema = z.enum([
 
 export const messageRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
-        return ctx.db.select().from(message);
+        return ctx.db
+            .select()
+            .from(message)
+            .where(eq(message.userId, ctx.session.user.id));
     }),
 
     listByNoteId: protectedProcedure
@@ -23,7 +26,12 @@ export const messageRouter = createTRPCRouter({
             return ctx.db
                 .select()
                 .from(message)
-                .where(eq(message.noteId, input.noteId))
+                .where(
+                    and(
+                        eq(message.noteId, input.noteId),
+                        eq(message.userId, ctx.session.user.id)
+                    )
+                )
                 .orderBy(message.createdAt);
         }),
 
@@ -33,7 +41,12 @@ export const messageRouter = createTRPCRouter({
             const rows = await ctx.db
                 .select()
                 .from(message)
-                .where(eq(message.id, input.id))
+                .where(
+                    and(
+                        eq(message.id, input.id),
+                        eq(message.userId, ctx.session.user.id)
+                    )
+                )
                 .limit(1);
 
             return rows[0] ?? null;
@@ -46,7 +59,6 @@ export const messageRouter = createTRPCRouter({
                 role: messageRoleSchema,
                 content: z.string().min(1),
                 noteId: z.string().uuid(),
-                userId: z.string(),
                 createdAt: z.coerce.date().optional(),
             })
         )
@@ -58,7 +70,7 @@ export const messageRouter = createTRPCRouter({
                     role: input.role,
                     content: input.content,
                     noteId: input.noteId,
-                    userId: input.userId,
+                    userId: ctx.session.user.id,
                     createdAt: input.createdAt ?? new Date(),
                 })
                 .returning();
@@ -73,7 +85,6 @@ export const messageRouter = createTRPCRouter({
                 role: messageRoleSchema.optional(),
                 content: z.string().min(1).optional(),
                 noteId: z.string().uuid().optional(),
-                userId: z.string().optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -83,9 +94,13 @@ export const messageRouter = createTRPCRouter({
                     role: input.role,
                     content: input.content,
                     noteId: input.noteId,
-                    userId: input.userId,
                 })
-                .where(eq(message.id, input.id))
+                .where(
+                    and(
+                        eq(message.id, input.id),
+                        eq(message.userId, ctx.session.user.id)
+                    )
+                )
                 .returning();
 
             return updated ?? null;
@@ -96,7 +111,12 @@ export const messageRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const [deleted] = await ctx.db
                 .delete(message)
-                .where(eq(message.id, input.id))
+                .where(
+                    and(
+                        eq(message.id, input.id),
+                        eq(message.userId, ctx.session.user.id)
+                    )
+                )
                 .returning();
 
             return deleted ?? null;

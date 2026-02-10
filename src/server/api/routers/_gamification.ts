@@ -1,10 +1,12 @@
 import { eq } from "drizzle-orm";
+import type { PgDatabase } from "drizzle-orm/pg-core";
 
+import type { db } from "~/server/db";
 import { userStats } from "~/server/db/schema";
 import { getKathmanduDateString } from "~/server/lib/gamification";
 
 export const ensureUserStats = async (
-    ctx: { db: typeof import("~/server/db").db },
+    ctx: { db: PgDatabase<any, any, any> },
     userId: string,
     now: Date
 ) => {
@@ -25,7 +27,7 @@ export const ensureUserStats = async (
 };
 
 export const ensureTodayCounters = async (
-    ctx: { db: typeof import("~/server/db").db },
+    ctx: { db: PgDatabase<any, any, any> },
     userId: string,
     now: Date
 ) => {

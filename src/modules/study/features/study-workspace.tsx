@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import {
     ArrowLeft,
@@ -14,7 +15,31 @@ import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { ChatInterface } from "~/components/chat/chat-interface";
 import { useActivityPing } from "~/lib/gamification-client";
+import { Skeleton } from "~/components/ui/skeleton";
 import React from "react";
+
+const LazyPdfViewer = dynamic(
+    () =>
+        import("~/modules/study/features/pdf-viewer").then(
+            (mod) => mod.PdfViewer
+        ),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex h-full items-center justify-center">
+                <div className="w-full space-y-4 p-8">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="mt-4 h-6 w-1/2" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/6" />
+                </div>
+            </div>
+        ),
+    }
+);
 
 interface StudyWorkspaceProps {
     noteId: string;
@@ -96,7 +121,10 @@ export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
 
                     {/* Chat Interface */}
                     <div className="flex flex-1 flex-col overflow-hidden">
-                        <ChatInterface noteId={noteId} />
+                        <ChatInterface
+                            noteId={noteId}
+                            textContent={note.textContent ?? undefined}
+                        />
                     </div>
                 </motion.div>
 
@@ -140,32 +168,10 @@ export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
 
                     {/* PDF Content Area */}
                     <div className="flex-1 overflow-hidden bg-slate-800/20">
-                        {note.fileUrl ? (
-                            <iframe
-                                src={note.fileUrl}
-                                className="h-full w-full border-0"
-                                title={note.title}
-                            />
-                        ) : (
-                            <div className="flex h-full items-center justify-center p-8">
-                                <div className="group relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-white/5 bg-white/5">
-                                    {/* Glassmorphism Paper Effect */}
-                                    <div className="absolute inset-12 flex flex-col rounded bg-white/90 p-10 shadow-2xl">
-                                        <div className="mb-4 h-4 w-3/4 rounded bg-slate-200" />
-                                        <div className="mb-2 h-3 w-full rounded bg-slate-100" />
-                                        <div className="mb-2 h-3 w-full rounded bg-slate-100" />
-                                        <div className="mb-8 h-3 w-5/6 rounded bg-slate-100" />
-                                        <div className="mb-4 h-4 w-1/2 rounded bg-slate-200" />
-                                        <div className="mb-2 h-3 w-full rounded bg-slate-100" />
-                                        <div className="mb-2 h-3 w-full rounded bg-slate-100" />
-                                        <div className="h-3 w-4/6 rounded bg-slate-100" />
-                                    </div>
-                                    <span className="z-10 rounded-full border border-white/10 bg-slate-900 px-3 py-1.5 text-xs text-white">
-                                        No PDF uploaded
-                                    </span>
-                                </div>
-                            </div>
-                        )}
+                        <LazyPdfViewer
+                            fileUrl={note.fileUrl ?? null}
+                            title={note.title}
+                        />
                     </div>
                 </motion.div>
             </div>

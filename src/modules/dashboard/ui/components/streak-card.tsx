@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import React from "react";
 import { Flame, Trophy } from "lucide-react";

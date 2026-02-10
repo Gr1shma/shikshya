@@ -18,7 +18,15 @@ export const addDays = (date: Date, days: number) => {
 };
 
 export const kathmanduStartOfDayUtc = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-").map((part) => Number(part));
+    const parts = dateStr.split("-").map((part) => Number(part));
+    const year = parts[0];
+    const month = parts[1];
+    const day = parts[2];
+
+    if (year === undefined || month === undefined || day === undefined) {
+        throw new Error(`Invalid date string: ${dateStr}`);
+    }
+
     const utcMs =
         Date.UTC(year, month - 1, day, 0, 0, 0) -
         KATHMANDU_OFFSET_MINUTES * 60 * 1000;

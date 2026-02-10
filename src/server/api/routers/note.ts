@@ -7,7 +7,16 @@ import { ensureTodayCounters } from "~/server/api/routers/_gamification";
 
 export const noteRouter = createTRPCRouter({
     list: protectedProcedure.query(({ ctx }) => {
-        return ctx.db.select().from(note);
+        return ctx.db
+            .select({
+                id: note.id,
+                title: note.title,
+                fileUrl: note.fileUrl,
+                courseId: note.courseId,
+                folderId: note.folderId,
+                createdAt: note.createdAt,
+            })
+            .from(note);
     }),
 
     getById: protectedProcedure
