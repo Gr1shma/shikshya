@@ -63,6 +63,13 @@ export function CreateCourseDialog() {
     if (user?.role !== "teacher") {
         return null;
     }
+    if (!user.teacherVerified) {
+        return (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
+                Your teacher account is pending verification by an admin.
+            </div>
+        );
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

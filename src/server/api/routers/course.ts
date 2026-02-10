@@ -54,7 +54,7 @@ export const courseRouter = createTRPCRouter({
                 where: eq(user.id, ctx.session.user.id),
             });
 
-            if (dbUser?.role !== "teacher") {
+            if (dbUser?.role !== "teacher" || !dbUser.teacherVerified) {
                 throw new TRPCError({ code: "FORBIDDEN" });
             }
 

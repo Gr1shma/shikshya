@@ -33,6 +33,13 @@ export const auth = betterAuth({
                 input: false,
                 fieldName: "onboardingCompleted",
             },
+            teacherVerified: {
+                type: "boolean",
+                required: true,
+                defaultValue: false,
+                input: false,
+                fieldName: "teacherVerified",
+            },
         },
     },
     emailAndPassword: {

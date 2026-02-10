@@ -27,29 +27,26 @@ export const messageRoleEnum = pgEnum("message_role", [
     "tool",
 ]);
 
-export const user = pgTable(
-    "user",
-    {
-        id: text("id").primaryKey(),
-        name: text("name").notNull(),
-        email: text("email").notNull().unique(),
-        emailVerified: boolean("email_verified")
-            .$defaultFn(() => false)
-            .notNull(),
-        image: text("image"),
-        role: userRoleEnum("role").notNull().default("student"),
-        onboardingCompleted: boolean("onboarding_completed")
-            .$defaultFn(() => false)
-            .notNull(),
-        createdAt: timestamp("created_at")
-            .$defaultFn(() => new Date())
-            .notNull(),
-        updatedAt: timestamp("updated_at")
-            .$defaultFn(() => new Date())
-            .notNull(),
-    },
-    (table) => [index("user_email_idx").on(table.email)]
-);
+export const user = pgTable("user", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    emailVerified: boolean("email_verified")
+        .$defaultFn(() => false)
+        .notNull(),
+    image: text("image"),
+    role: userRoleEnum("role").notNull().default("student"),
+    teacherVerified: boolean("teacher_verified").notNull().default(false),
+    onboardingCompleted: boolean("onboarding_completed")
+        .$defaultFn(() => false)
+        .notNull(),
+    createdAt: timestamp("created_at")
+        .$defaultFn(() => new Date())
+        .notNull(),
+    updatedAt: timestamp("updated_at")
+        .$defaultFn(() => new Date())
+        .notNull(),
+});
 
 export const session = pgTable("session", {
     id: text("id").primaryKey(),

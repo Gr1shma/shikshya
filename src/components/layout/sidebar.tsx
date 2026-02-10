@@ -124,6 +124,24 @@ export default function ProfileSidebar({
                                         className="text-slate-600"
                                     />
                                 </Link>
+                                {user.role.toLowerCase() === "admin" && (
+                                    <Link
+                                        href="/admin"
+                                        className="flex w-full items-center justify-between rounded-xl p-4 text-slate-300 transition-all hover:bg-white/5 hover:text-white"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <ShieldCheck
+                                                size={18}
+                                                className="text-indigo-400"
+                                            />
+                                            <span>Admin Panel</span>
+                                        </div>
+                                        <ChevronRight
+                                            size={16}
+                                            className="text-slate-600"
+                                        />
+                                    </Link>
+                                )}
                             </div>
 
                             {/* Sign Out */}
