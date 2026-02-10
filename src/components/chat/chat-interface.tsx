@@ -17,9 +17,16 @@ import { api } from "~/trpc/react";
 interface ChatInterfaceProps {
     noteId: string;
     textContent?: string;
+    initialMessage?: string;
+    onMessageSent?: () => void;
 }
 
-export function ChatInterface({ noteId, textContent }: ChatInterfaceProps) {
+export function ChatInterface({
+    noteId,
+    textContent,
+    initialMessage,
+    onMessageSent,
+}: ChatInterfaceProps) {
     const { data: history } = api.message.listByNoteId.useQuery({ noteId });
     const utils = api.useUtils();
 
@@ -58,6 +65,33 @@ export function ChatInterface({ noteId, textContent }: ChatInterfaceProps) {
             );
         }
     }, [history, setMessages, messages.length]);
+
+    // Handle initial message (e.g. from "Explain" button)
+    useEffect(() => {
+        if (initialMessage && !isLoading) {
+            void (async () => {
+                try {
+                    // Send message immediately
+                    await sendMessage({
+                        parts: [
+                            {
+                                type: "text",
+                                text: `Explain this: "${initialMessage}"`,
+                            },
+                        ],
+                    });
+
+                    // Notify parent that message was sent (to clear pending state)
+                    onMessageSent?.();
+
+                    // Refresh stats after sending
+                    await utils.stats.getMyStats.invalidate();
+                } catch (error) {
+                    console.error("Error sending initial message:", error);
+                }
+            })();
+        }
+    }, [initialMessage, isLoading, sendMessage, onMessageSent, utils]);
 
     // Scroll Logic
     const scrollToBottom = () => {

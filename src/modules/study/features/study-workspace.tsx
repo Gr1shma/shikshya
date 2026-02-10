@@ -21,7 +21,7 @@ import { Button } from "~/components/ui/button";
 import { ChatInterface } from "~/components/chat/chat-interface";
 import { useActivityPing } from "~/lib/gamification-client";
 import { Skeleton } from "~/components/ui/skeleton";
-import React from "react";
+import React, { useState } from "react";
 
 const LazyPdfViewer = dynamic(
     () =>
@@ -53,6 +53,9 @@ interface StudyWorkspaceProps {
 export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
     const [note] = api.note.getById.useSuspenseQuery({ id: noteId });
     const { sendPing } = useActivityPing(noteId);
+    const [pendingExplainText, setPendingExplainText] = useState<string | null>(
+        null
+    );
 
     React.useEffect(() => {
         sendPing("focus");
@@ -74,6 +77,10 @@ export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
             window.removeEventListener("keydown", handleKeydown);
         };
     }, [sendPing]);
+
+    const handleExplain = (text: string) => {
+        setPendingExplainText(text);
+    };
 
     if (!note) {
         return (
@@ -132,6 +139,10 @@ export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
                             <ChatInterface
                                 noteId={noteId}
                                 textContent={note.textContent ?? undefined}
+                                initialMessage={pendingExplainText ?? undefined}
+                                onMessageSent={() =>
+                                    setPendingExplainText(null)
+                                }
                             />
                         </div>
                     </motion.div>
@@ -182,7 +193,7 @@ export function StudyWorkspace({ noteId }: StudyWorkspaceProps) {
                         <div className="flex-1 overflow-hidden bg-slate-800/20">
                             <LazyPdfViewer
                                 fileUrl={note.fileUrl ?? null}
-                                title={note.title}
+                                onExplain={handleExplain}
                             />
                         </div>
                     </motion.div>
