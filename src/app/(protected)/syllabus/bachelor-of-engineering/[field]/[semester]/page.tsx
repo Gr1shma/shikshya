@@ -153,7 +153,7 @@ export default async function EngineeringSemesterPage({
     const semesterTitle = semesterLabelMap[semester] ?? "Semester";
     const isComputerEngineering = field === "computer-engineering";
     const subjects = isComputerEngineering
-        ? computerEngineeringSubjects[semester] ?? []
+        ? (computerEngineeringSubjects[semester] ?? [])
         : [];
 
     return (
