@@ -11,6 +11,7 @@ import {
     Menu,
     X,
     Trophy,
+    HomeIcon,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import ProfileSidebar from "./sidebar";
@@ -19,6 +20,7 @@ import { UserAvatar } from "../user-avatar";
 import Image from "next/image";
 
 const navItems = [
+    { name: "Home", path: "/home", icon: HomeIcon },
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Courses", path: "/course", icon: LibraryBig },
     { name: "Learn", path: "/learn", icon: BookOpen },
@@ -60,7 +62,7 @@ export default function Navbar() {
                     <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 p-2 pl-6 shadow-2xl shadow-indigo-500/10 backdrop-blur-md">
                         {/* Logo */}
                         <Link
-                            href="/dashboard"
+                            href="/home"
                             className="group flex items-center gap-3 select-none"
                         >
                             {/* Logo Icon */}
