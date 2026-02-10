@@ -23,7 +23,7 @@ const navItems = [
     { name: "Home", path: "/", icon: HomeIcon },
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Courses", path: "/course", icon: LibraryBig },
-    { name: "Learn", path: "/learn", icon: BookOpen },
+    { name: "Syllabus", path: "/syllabus", icon: BookOpen },
 ];
 
 export default function Navbar() {
