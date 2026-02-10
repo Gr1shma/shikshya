@@ -67,8 +67,15 @@ export function ChatInterface({
     }, [history, setMessages, messages.length]);
 
     // Handle initial message (e.g. from "Explain" button)
+    const processedMessageRef = useRef<string | null>(null);
+
     useEffect(() => {
-        if (initialMessage && !isLoading) {
+        if (
+            initialMessage &&
+            !isLoading &&
+            processedMessageRef.current !== initialMessage
+        ) {
+            processedMessageRef.current = initialMessage;
             void (async () => {
                 try {
                     // Send message immediately
