@@ -135,7 +135,7 @@ The platform serves as a central hub for academic operations, facilitating:
 
 1. **Clone Repository**
    ```bash
-   git clone https://github.com/i-ces/shikshya.git
+   git clone https://github.com/Gr1shma/shikshya.git
    cd shikshya
    ```
 
